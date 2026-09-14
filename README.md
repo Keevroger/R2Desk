@@ -1,4 +1,4 @@
-# R2Desk
+**R2Desk**
 
 Projeto acadêmico de **Service Management**, desenvolvido com foco na criação de um portal para abertura, acompanhamento e gerenciamento de chamados de TI.
 
@@ -54,7 +54,7 @@ A primeira entrega do projeto tem como foco o desenvolvimento da **interface e d
 
 **Vídeo de apresentação da AC1**
 
-> [Assistir à apresentação da AC1](LINK_DO_VIDEO)
+> [Assistir à apresentação da AC1 no Google Drive](https://drive.google.com/file/d/1VKXviLLhv4ApCK_ba62hcm517veqNRYX/view?usp=sharing)
 
 **Estrutura do Projeto**
 
