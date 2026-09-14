@@ -130,8 +130,8 @@ O desenvolvimento e a evolução das entregas podem ser acompanhados através do
 ## Evolução do Projeto
 
 * [x] AC1 — Front-end e fluxo do Portal de Serviços
-* [ ] AC2 — Backend e API
-* [ ] AC3 — Banco de Dados e integração entre as camadas
+* [ ] AC2 — Backend e API - Planejado para 2a AC
+* [ ] AC3 — Banco de Dados e integração entre as camadas - Planejado para 3a AC
 * [ ] Entrega Final — Integração completa, testes e refinamentos
 
 ## Próximas Etapas
