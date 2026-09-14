@@ -1,0 +1,1124 @@
+<!doctype html>
+<html data-theme="light" lang="pt-BR">
+ <head>
+  <!-- R2Desk | Front-end acadêmico: HTML5 + CSS3 + JavaScript -->
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   R2Desk | Service Management
+  </title>
+  <link href="css/style.css" rel="stylesheet"/>
+  <script defer="" src="js/app.js"></script>
+ </head>
+ <body>
+  <section class="login-screen" id="loginScreen">
+   <div class="login-brand">
+    <div class="brand-lockup">
+     <div class="brand-mark tron-mark">
+      <svg aria-label="Logo R2Desk" role="img" viewBox="0 0 48 48">
+       <path class="tron-frame" d="M11 4h26l7 7v26l-7 7H11l-7-7V11z">
+       </path>
+       <path class="tron-inner" d="M13.5 7h21l6.5 6.5v21L34.5 41h-21L7 34.5v-21z">
+       </path>
+       <text class="tron-letter tron-rletter" text-anchor="middle" x="17" y="31.5">
+        R
+       </text>
+       <text class="tron-letter tron-2letter" text-anchor="middle" x="31.5" y="31.5">
+        2
+       </text>
+       <path class="tron-cut" d="M11 36.5h9M28 11.5h9">
+       </path>
+      </svg>
+     </div>
+     <div class="brand-copy">
+      <b>
+       R2Desk
+      </b>
+      <span>
+       Service Management
+      </span>
+     </div>
+    </div>
+    <div class="login-pitch">
+     <div class="eyebrow">
+      Central de Serviços de TI
+     </div>
+     <p style="margin-top:18px">
+      <strong style="color:#eef3ff;font-weight:800">
+       Atendimento organizado por áreas, catálogo de serviços, acompanhamento de SLA e uma experiência diferente para solicitantes e administradores.
+      </strong>
+     </p>
+     <div class="login-features">
+      <div class="login-feature">
+       <b>
+        Catálogo por área
+       </b>
+       <span>
+        Serviços separados por especialidade e time responsável.
+       </span>
+      </div>
+      <div class="login-feature">
+       <b>
+        Fluxo simples
+       </b>
+       <span>
+        Abertura de chamado em poucos passos e sem excesso de campos.
+       </span>
+      </div>
+      <div class="login-feature">
+       <b>
+        Gestão central
+       </b>
+       <span>
+        Fila, prioridade, SLA, responsáveis e acompanhamento em um só lugar.
+       </span>
+      </div>
+     </div>
+    </div>
+    <div style="position:relative;z-index:2;font-size:9px;color:#74859f">
+     R2Desk • Service Management • Projeto acadêmico
+    </div>
+   </div>
+   <div class="login-panel">
+    <button aria-label="Alternar tema" class="theme-toggle login-theme-toggle" type="button">
+     <span class="theme-icon theme-sun">
+      ☀
+     </span>
+     <span class="theme-icon theme-moon">
+      ☾
+     </span>
+    </button>
+    <div class="login-card card">
+     <h2>
+      Bem-vindo
+     </h2>
+     <p>
+      Entre como solicitante ou administrador para acessar seu ambiente.
+     </p>
+     <div class="login-tabs">
+      <button class="login-tab active" data-login-role="requester">
+       Solicitante
+      </button>
+      <button class="login-tab" data-login-role="admin">
+       Administrador
+      </button>
+     </div>
+     <form id="loginForm">
+      <div class="login-error" id="loginError">
+       E-mail ou senha inválidos.
+      </div>
+      <div class="field">
+       <label>
+        E-mail
+       </label>
+       <input autocomplete="username" id="loginEmail" required="" type="email" value="solicitante@r2desk.com"/>
+      </div>
+      <div class="field">
+       <label>
+        Senha
+       </label>
+       <input autocomplete="current-password" id="loginPassword" required="" type="password" value="123456"/>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">
+       Entrar no R2Desk
+      </button>
+      <div class="demo-box" id="demoBox">
+       <b>
+        Conta de demonstração — Solicitante
+       </b>
+       <br/>
+       solicitante@r2desk.com
+       <br/>
+       Senha: 123456
+      </div>
+     </form>
+    </div>
+   </div>
+  </section>
+  <section class="app hidden" id="app">
+   <aside class="sidebar">
+    <div class="side-brand">
+     <div class="brand-mark tron-mark">
+      <svg aria-label="Logo R2Desk" role="img" viewBox="0 0 48 48">
+       <path class="tron-frame" d="M11 4h26l7 7v26l-7 7H11l-7-7V11z">
+       </path>
+       <path class="tron-inner" d="M13.5 7h21l6.5 6.5v21L34.5 41h-21L7 34.5v-21z">
+       </path>
+       <text class="tron-letter tron-rletter" text-anchor="middle" x="17" y="31.5">
+        R
+       </text>
+       <text class="tron-letter tron-2letter" text-anchor="middle" x="31.5" y="31.5">
+        2
+       </text>
+       <path class="tron-cut" d="M11 36.5h9M28 11.5h9">
+       </path>
+      </svg>
+     </div>
+     <div class="brand-copy">
+      <b>
+       R2Desk
+      </b>
+      <small>
+       Service Management
+      </small>
+     </div>
+    </div>
+    <div id="navRequester">
+     <div class="nav-title">
+      Portal
+     </div>
+     <nav class="nav">
+      <button class="active" data-page="portal">
+       <span class="nav-icon">
+        ⌂
+       </span>
+       <span>
+        Início
+       </span>
+      </button>
+      <button data-page="myTickets">
+       <span class="nav-icon">
+        #
+       </span>
+       <span>
+        Meus chamados
+       </span>
+      </button>
+      <button data-page="knowledge">
+       <span class="nav-icon">
+        ?
+       </span>
+       <span>
+        Base de conhecimento
+       </span>
+      </button>
+     </nav>
+    </div>
+    <div class="hidden" id="navAdmin">
+     <div class="nav-title">
+      Operação
+     </div>
+     <nav class="nav">
+      <button class="active" data-page="adminDashboard">
+       <span class="nav-icon">
+        ⌂
+       </span>
+       <span>
+        Dashboard
+       </span>
+      </button>
+      <button data-page="queue">
+       <span class="nav-icon">
+        #
+       </span>
+       <span>
+        Central de atendimento
+       </span>
+      </button>
+      <button data-page="catalog">
+       <span class="nav-icon">
+        ▦
+       </span>
+       <span>
+        Áreas &amp; catálogo
+       </span>
+      </button>
+     </nav>
+     <div class="nav-title">
+      Gestão
+     </div>
+     <nav class="nav">
+      <button data-page="knowledge">
+       <span class="nav-icon">
+        ?
+       </span>
+       <span>
+        Conhecimento
+       </span>
+      </button>
+      <button data-page="reports">
+       <span class="nav-icon">
+        ↗
+       </span>
+       <span>
+        Relatórios
+       </span>
+      </button>
+     </nav>
+    </div>
+    <div class="sidebar-user">
+     <div class="user-row">
+      <div class="avatar" id="sideAvatar">
+       KS
+      </div>
+      <div class="user-copy">
+       <b id="sideName">
+        Kevin Santos
+       </b>
+       <span id="sideRole">
+        Solicitante
+       </span>
+      </div>
+      <button class="logout-btn" id="logoutBtn" title="Sair">
+       ↪
+      </button>
+     </div>
+    </div>
+   </aside>
+   <main class="main">
+    <header class="topbar">
+     <div class="top-left">
+      <h2 id="topTitle">
+       Portal de Serviços
+      </h2>
+      <span id="topSubtitle">
+       Solicite suporte e acompanhe seus chamados
+      </span>
+     </div>
+     <div class="top-actions">
+      <div class="search">
+       <input id="globalSearch" placeholder="Buscar chamados..."/>
+      </div>
+      <div class="notification-wrap" id="notificationWrap">
+       <button aria-label="Notificações" class="notification-btn" id="notificationBtn" title="Notificações" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9">
+         </path>
+         <path d="M10 21h4">
+         </path>
+        </svg>
+        <span class="notification-badge hidden" id="notificationBadge">
+         0
+        </span>
+       </button>
+       <div class="notification-panel" id="notificationPanel">
+        <div class="notification-head">
+         <b>
+          Notificações
+         </b>
+         <button id="markNotificationsRead" type="button">
+          Marcar como lidas
+         </button>
+        </div>
+        <div class="notification-list" id="notificationList">
+        </div>
+       </div>
+      </div>
+      <button aria-label="Alternar tema" class="theme-toggle" type="button">
+       <span class="theme-icon theme-sun">
+        ☀
+       </span>
+       <span class="theme-icon theme-moon">
+        ☾
+       </span>
+      </button>
+      <button class="btn btn-primary" id="topNewTicket">
+       + Novo chamado
+      </button>
+     </div>
+    </header>
+    <div class="content">
+     <section class="page active" id="portal">
+      <div class="hero card">
+       <div>
+        <div class="welcome-label">
+         Portal do colaborador
+        </div>
+        <h1>
+         Olá, Kevin. Como podemos ajudar hoje?
+        </h1>
+        <p class="lead">
+         Encontre o serviço que precisa ou abra um chamado. O R2Desk direciona sua solicitação para a equipe responsável e mantém você informado durante o atendimento.
+        </p>
+        <div class="hero-search">
+         <input id="serviceSearch" placeholder="Busque por VPN, Salesforce, notebook, Power BI..."/>
+         <button class="btn btn-primary" id="heroOpenTicket">
+          Abrir chamado
+         </button>
+        </div>
+        <div class="hero-actions">
+         <button class="btn btn-secondary" data-page-target="myTickets">
+          Acompanhar meus chamados
+         </button>
+         <button class="btn btn-ghost" data-page-target="knowledge">
+          Consultar base de conhecimento
+         </button>
+        </div>
+       </div>
+       <div class="hero-summary">
+        <div class="summary-top">
+         <b>
+          Seu atendimento
+         </b>
+         <span>
+          Atualizado agora
+         </span>
+        </div>
+        <div class="summary-metrics">
+         <div class="summary-metric">
+          <strong id="sumOpen">
+           0
+          </strong>
+          <small>
+           abertos
+          </small>
+         </div>
+         <div class="summary-metric">
+          <strong id="sumProgress">
+           0
+          </strong>
+          <small>
+           em atendimento
+          </small>
+         </div>
+         <div class="summary-metric">
+          <strong id="sumWait">
+           0
+          </strong>
+          <small>
+           aguardando você
+          </small>
+         </div>
+        </div>
+        <div class="summary-foot">
+         Central de Serviços de TI disponível
+        </div>
+       </div>
+      </div>
+      <div class="section-head">
+       <h2>
+        Áreas de atendimento
+       </h2>
+       <span>
+        Escolha a especialidade relacionada à sua necessidade
+       </span>
+      </div>
+      <div class="area-grid" id="areaGrid">
+      </div>
+      <div class="section-head">
+       <h2>
+        Ações frequentes
+       </h2>
+       <span>
+        Atalhos para solicitações comuns
+       </span>
+      </div>
+      <div class="quick-panel card">
+       <div class="quick-label">
+        <b>
+         Acessos rápidos
+        </b>
+        <span>
+         Comece por uma ação direta
+        </span>
+       </div>
+       <button class="quick-action" data-quick="Redefinição de senha">
+        <i>
+         PW
+        </i>
+        <span>
+         <b>
+          Redefinir senha
+         </b>
+         <span>
+          Conta bloqueada ou senha expirada
+         </span>
+        </span>
+       </button>
+       <button class="quick-action" data-quick="Acesso a sistema">
+        <i>
+         AC
+        </i>
+        <span>
+         <b>
+          Solicitar acesso
+         </b>
+         <span>
+          Perfil, permissão ou grupo
+         </span>
+        </span>
+       </button>
+       <button class="quick-action" data-quick="Problema no notebook">
+        <i>
+         PC
+        </i>
+        <span>
+         <b>
+          Problema no equipamento
+         </b>
+         <span>
+          Notebook, monitor ou periférico
+         </span>
+        </span>
+       </button>
+       <button class="quick-action" data-quick="Relatório / BI">
+        <i>
+         BI
+        </i>
+        <span>
+         <b>
+          Dados e relatórios
+         </b>
+         <span>
+          Power BI, dashboard ou indicador
+         </span>
+        </span>
+       </button>
+      </div>
+      <div class="section-head">
+       <h2>
+        Meus chamados recentes
+       </h2>
+       <span id="requesterTicketCount">
+       </span>
+      </div>
+      <div class="recent-list card" id="portalTickets">
+      </div>
+     </section>
+     <section class="page" id="myTickets">
+      <div class="page-head">
+       <div>
+        <h1>
+         Meus chamados
+        </h1>
+        <p>
+         Acompanhe status, SLA, área responsável e as últimas interações.
+        </p>
+       </div>
+       <button class="btn btn-primary" data-new-ticket="">
+        + Abrir chamado
+       </button>
+      </div>
+      <div class="my-ticket-tools card">
+       <div class="field">
+        <label>
+         Área de atendimento
+        </label>
+        <select id="myAreaFilter">
+         <option value="all">
+          Todas as áreas
+         </option>
+        </select>
+       </div>
+       <div class="field">
+        <label>
+         Data inicial
+        </label>
+        <input id="myDateFrom" type="date"/>
+       </div>
+       <div class="field">
+        <label>
+         Data final
+        </label>
+        <input id="myDateTo" type="date"/>
+       </div>
+       <button class="btn btn-secondary" id="clearMyTicketFilters" type="button">
+        Limpar filtros
+       </button>
+      </div>
+      <div class="filter-result" id="myTicketFilterResult">
+      </div>
+      <div class="my-tickets" id="myTicketCards">
+      </div>
+     </section>
+     <section class="page" id="knowledge">
+      <div class="knowledge-hero card">
+       <div>
+        <h2>
+         Base de conhecimento
+        </h2>
+        <p>
+         Guias e procedimentos para ajudar você a utilizar o portal e resolver dúvidas comuns.
+        </p>
+       </div>
+       <div class="knowledge-icon">
+        ?
+       </div>
+      </div>
+      <div class="getting-started card">
+       <div class="getting-started-head">
+        <div>
+         <h3>
+          Primeiros passos no R2Desk
+         </h3>
+         <p>
+          Conteúdo pensado para quem está usando o portal pela primeira vez.
+         </p>
+        </div>
+        <span class="getting-started-badge">
+         Novo por aqui?
+        </span>
+       </div>
+       <div class="start-grid">
+        <button class="start-card" data-article="first-ticket">
+         <i>
+          01
+         </i>
+         <b>
+          Como abrir seu primeiro chamado
+         </b>
+         <span>
+          Veja o fluxo completo da classificação até o envio.
+         </span>
+        </button>
+        <button class="start-card" data-article="choose-service">
+         <i>
+          02
+         </i>
+         <b>
+          Como escolher área e urgência
+         </b>
+         <span>
+          Entenda para onde direcionar sua solicitação.
+         </span>
+        </button>
+        <button class="start-card" data-article="follow-ticket">
+         <i>
+          03
+         </i>
+         <b>
+          Como acompanhar e responder
+         </b>
+         <span>
+          Status, SLA, mensagens e atualizações do atendimento.
+         </span>
+        </button>
+       </div>
+      </div>
+      <div class="knowledge-filters" id="knowledgeFilters">
+      </div>
+      <div class="article-grid" id="articleGrid">
+      </div>
+     </section>
+     <section class="page" id="ticketDetail">
+      <div id="ticketDetailContent">
+      </div>
+     </section>
+     <section class="page" id="articleDetail">
+      <div id="articleDetailContent">
+      </div>
+     </section>
+     <section class="page" id="adminDashboard">
+      <div class="page-head">
+       <div>
+        <h1>
+         Dashboard da Central
+        </h1>
+        <p>
+         Visão operacional do atendimento de TI.
+        </p>
+       </div>
+       <button class="btn btn-primary" data-page-target="queue">
+        Ver fila completa
+       </button>
+      </div>
+      <div class="metrics">
+       <div class="metric card">
+        <div class="metric-top">
+         <span>
+          Chamados abertos
+         </span>
+         <div class="metric-icon">
+          #
+         </div>
+        </div>
+        <div class="num" id="mOpen">
+         0
+        </div>
+        <small>
+         aguardando ou em atendimento
+        </small>
+       </div>
+       <div class="metric card">
+        <div class="metric-top">
+         <span>
+          SLA em risco
+         </span>
+         <div class="metric-icon">
+          !
+         </div>
+        </div>
+        <div class="num" id="mRisk">
+         0
+        </div>
+        <small>
+         prioridade alta ou crítica
+        </small>
+       </div>
+       <div class="metric card">
+        <div class="metric-top">
+         <span>
+          Resolvidos
+         </span>
+         <div class="metric-icon">
+          ✓
+         </div>
+        </div>
+        <div class="num" id="mDone">
+         0
+        </div>
+        <small>
+         concluídos na base atual
+        </small>
+       </div>
+       <div class="metric card">
+        <div class="metric-top">
+         <span>
+          Áreas ativas
+         </span>
+         <div class="metric-icon">
+          ▦
+         </div>
+        </div>
+        <div class="num">
+         6
+        </div>
+        <small>
+         catálogo de atendimento
+        </small>
+       </div>
+      </div>
+      <div class="admin-grid">
+       <div class="card panel">
+        <div class="panel-head">
+         <h3>
+          Chamados mais recentes
+         </h3>
+         <button class="btn btn-ghost" data-page-target="queue">
+          Abrir fila
+         </button>
+        </div>
+        <div class="table-card" style="border:1px solid var(--line);border-radius:13px">
+         <table>
+          <thead>
+           <tr>
+            <th>
+             Chamado
+            </th>
+            <th>
+             Assunto
+            </th>
+            <th>
+             Área
+            </th>
+            <th>
+             Prioridade
+            </th>
+            <th>
+             Status
+            </th>
+           </tr>
+          </thead>
+          <tbody id="recentAdminRows">
+          </tbody>
+         </table>
+        </div>
+       </div>
+       <div class="card panel">
+        <div class="panel-head">
+         <h3>
+          Volume por área
+         </h3>
+         <span class="muted" style="font-size:9px">
+          Chamados ativos
+         </span>
+        </div>
+        <div class="area-health" id="areaHealth">
+        </div>
+       </div>
+      </div>
+     </section>
+     <section class="page" id="queue">
+      <div class="page-head">
+       <div>
+        <h1>
+         Central de atendimento
+        </h1>
+        <p>
+         Fila unificada para triagem, atribuição e acompanhamento.
+        </p>
+       </div>
+       <button class="btn btn-primary" data-new-ticket="">
+        + Registrar chamado
+       </button>
+      </div>
+      <div class="card table-card">
+       <div class="toolbar">
+        <div class="filters" id="statusFilters">
+         <button class="chip active" data-filter="all">
+          Todos
+         </button>
+         <button class="chip" data-filter="Aberto">
+          Abertos
+         </button>
+         <button class="chip" data-filter="Em atendimento">
+          Em atendimento
+         </button>
+         <button class="chip" data-filter="Aguardando usuário">
+          Aguardando
+         </button>
+         <button class="chip" data-filter="Resolvido">
+          Resolvidos
+         </button>
+        </div>
+        <select id="areaFilter" style="border:1px solid var(--line);border-radius:10px;padding:7px 10px;color:var(--text);background:var(--field);font-size:9px">
+         <option value="all">
+          Todas as áreas
+         </option>
+        </select>
+       </div>
+       <table>
+        <thead>
+         <tr>
+          <th>
+           Chamado
+          </th>
+          <th>
+           Assunto
+          </th>
+          <th>
+           Solicitante
+          </th>
+          <th>
+           Área
+          </th>
+          <th>
+           Prioridade
+          </th>
+          <th>
+           Status
+          </th>
+          <th>
+           SLA
+          </th>
+         </tr>
+        </thead>
+        <tbody id="queueRows">
+        </tbody>
+       </table>
+      </div>
+     </section>
+     <section class="page" id="catalog">
+      <div class="page-head">
+       <div>
+        <h1>
+         Áreas &amp; catálogo
+        </h1>
+        <p>
+         Estrutura de atendimento apresentada ao solicitante.
+        </p>
+       </div>
+      </div>
+      <div class="catalog-grid" id="catalogGrid">
+      </div>
+     </section>
+     <section class="page" id="reports">
+      <div class="page-head">
+       <div>
+        <h1>
+         Relatórios
+        </h1>
+        <p>
+         Resumo para acompanhamento da operação e apresentação acadêmica.
+        </p>
+       </div>
+      </div>
+      <div class="metrics">
+       <div class="metric card">
+        <div class="metric-top">
+         <span>
+          Total registrado
+         </span>
+        </div>
+        <div class="num" id="rTotal">
+         0
+        </div>
+        <small>
+         base atual do protótipo
+        </small>
+       </div>
+       <div class="metric card">
+        <div class="metric-top">
+         <span>
+          Em atendimento
+         </span>
+        </div>
+        <div class="num" id="rProgress">
+         0
+        </div>
+        <small>
+         trabalho em andamento
+        </small>
+       </div>
+       <div class="metric card">
+        <div class="metric-top">
+         <span>
+          Resolvidos
+         </span>
+        </div>
+        <div class="num" id="rSolved">
+         0
+        </div>
+        <small>
+         chamados finalizados
+        </small>
+       </div>
+       <div class="metric card">
+        <div class="metric-top">
+         <span>
+          Alta/Crítica
+         </span>
+        </div>
+        <div class="num" id="rHigh">
+         0
+        </div>
+        <small>
+         itens prioritários
+        </small>
+       </div>
+      </div>
+     </section>
+    </div>
+   </main>
+  </section>
+  <div class="modal" id="ticketModal">
+   <div class="modal-box">
+    <div class="modal-head">
+     <div>
+      <h3>
+       Abrir novo chamado
+      </h3>
+      <p>
+       Informe apenas o necessário. A equipe faz a triagem técnica depois.
+      </p>
+     </div>
+     <button class="close" id="closeTicketModal">
+      ×
+     </button>
+    </div>
+    <form class="wizard" id="ticketForm" novalidate="">
+     <div class="steps">
+      <div class="step active" data-step-ind="1">
+       <i>
+        1
+       </i>
+       <span>
+        Classificação
+       </span>
+      </div>
+      <div class="step" data-step-ind="2">
+       <i>
+        2
+       </i>
+       <span>
+        Detalhes
+       </span>
+      </div>
+      <div class="step" data-step-ind="3">
+       <i>
+        3
+       </i>
+       <span>
+        Revisão
+       </span>
+      </div>
+     </div>
+     <section class="wizard-page active" data-step="1">
+      <h4 class="wizard-title">
+       Onde você precisa de ajuda?
+      </h4>
+      <p class="wizard-sub">
+       Escolha a área, o serviço e o tipo da solicitação para direcionarmos corretamente.
+      </p>
+      <div class="form-grid">
+       <div class="field">
+        <label>
+         Área de atendimento
+        </label>
+        <select id="ticketArea" required="">
+        </select>
+       </div>
+       <div class="field">
+        <label>
+         Serviço
+        </label>
+        <select id="ticketService" required="">
+        </select>
+       </div>
+      </div>
+      <label style="font-size:11px;font-weight:800;display:block;margin:2px 0 8px">
+       Tipo de solicitação
+      </label>
+      <div class="issue-grid" id="issueGrid">
+       <button class="issue-option selected" data-issue="Incidente" type="button">
+        <b>
+         Algo não está funcionando
+        </b>
+        <span>
+         Erro, indisponibilidade, falha ou comportamento inesperado.
+        </span>
+       </button>
+       <button class="issue-option" data-issue="Solicitação" type="button">
+        <b>
+         Preciso solicitar algo
+        </b>
+        <span>
+         Acesso, instalação, equipamento, cadastro ou novo recurso.
+        </span>
+       </button>
+       <button class="issue-option" data-issue="Dúvida" type="button">
+        <b>
+         Tenho uma dúvida
+        </b>
+        <span>
+         Orientação de uso, procedimento ou funcionamento do serviço.
+        </span>
+       </button>
+       <button class="issue-option" data-issue="Melhoria" type="button">
+        <b>
+         Sugestão ou melhoria
+        </b>
+        <span>
+         Ajuste de processo, relatório, sistema ou experiência.
+        </span>
+       </button>
+      </div>
+     </section>
+     <section class="wizard-page" data-step="2">
+      <h4 class="wizard-title">
+       Conte o que aconteceu
+      </h4>
+      <p class="wizard-sub">
+       Explique sua necessidade e, se tiver, anexe evidências. Isso ajuda a equipe a resolver mais rápido.
+      </p>
+      <div class="form-grid">
+       <div class="field full">
+        <label>
+         Assunto *
+        </label>
+        <input id="ticketSubject" maxlength="100" placeholder="Ex.: Não consigo acessar o Salesforce" required=""/>
+       </div>
+       <div class="field full">
+        <label>
+         Descrição *
+        </label>
+        <textarea id="ticketDescription" placeholder="Descreva o que aconteceu, quando começou, o que você estava fazendo e qualquer mensagem de erro exibida." required=""></textarea>
+        <div class="helper">
+         Quanto mais contexto, menos idas e voltas durante o atendimento.
+        </div>
+       </div>
+       <div class="field full">
+        <label>
+         Qual a urgência?
+        </label>
+        <div class="urgency-row" id="urgencyRow">
+         <button class="urgency selected" data-urgency="Normal" type="button">
+          <b>
+           Normal
+          </b>
+          <span>
+           Consigo continuar trabalhando
+          </span>
+         </button>
+         <button class="urgency" data-urgency="Alta" type="button">
+          <b>
+           Alta
+          </b>
+          <span>
+           Meu trabalho está bem impactado
+          </span>
+         </button>
+         <button class="urgency" data-urgency="Imediata" type="button">
+          <b>
+           Imediata
+          </b>
+          <span>
+           Operação parada / várias pessoas
+          </span>
+         </button>
+        </div>
+       </div>
+       <div class="field full">
+        <label>
+         Anexos
+        </label>
+        <div class="upload-box">
+         <div class="upload-copy">
+          <div class="upload-icon">
+           ↑
+          </div>
+          <div>
+           <b>
+            Adicione evidências do problema
+           </b>
+           <span>
+            Imagens, vídeos ou PDF • limite total de 2 GB
+           </span>
+          </div>
+         </div>
+         <button class="btn btn-secondary" id="chooseFiles" type="button">
+          Selecionar arquivos
+         </button>
+        </div>
+        <input accept="image/*,video/*,.pdf,application/pdf" class="hidden" id="ticketFiles" multiple="" type="file"/>
+        <div class="file-list" id="fileList">
+        </div>
+       </div>
+      </div>
+     </section>
+     <section class="wizard-page" data-step="3">
+      <h4 class="wizard-title">
+       Revise antes de enviar
+      </h4>
+      <p class="wizard-sub">
+       Confira exatamente o que será encaminhado para a TI. Você poderá complementar as informações depois pelo próprio chamado.
+      </p>
+      <div class="review" id="ticketReview">
+      </div>
+     </section>
+     <div class="wizard-actions">
+      <button class="btn btn-secondary hidden" id="wizardBack" type="button">
+       Voltar
+      </button>
+      <div style="margin-left:auto;display:flex;gap:8px">
+       <button class="btn btn-secondary" id="wizardCancel" type="button">
+        Cancelar
+       </button>
+       <button class="btn btn-primary" id="wizardNext" type="button">
+        Continuar
+       </button>
+       <button class="btn btn-primary hidden" id="wizardSubmit" type="submit">
+        Confirmar e enviar
+       </button>
+      </div>
+     </div>
+    </form>
+   </div>
+  </div>
+  <div class="modal" id="logoutModal">
+   <div class="confirm-box">
+    <div class="confirm-icon">
+     ↪
+    </div>
+    <h3>
+     Sair do R2Desk?
+    </h3>
+    <p>
+     Você será desconectado do Portal de Serviços e voltará para a tela inicial de login. Seus chamados e informações salvas não serão perdidos.
+    </p>
+    <div class="confirm-actions">
+     <button class="btn btn-secondary" id="cancelLogout" type="button">
+      Continuar no portal
+     </button>
+     <button class="btn btn-primary" id="confirmLogout" type="button">
+      Sim, sair
+     </button>
+    </div>
+   </div>
+  </div>
+  <div class="toast" id="toast">
+   Ação concluída.
+  </div>
+ </body>
+</html>
+
