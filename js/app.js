@@ -46,7 +46,10 @@ const seed = [
 ];
 let tickets = JSON.parse(localStorage.getItem('r2deskTicketsV2') || 'null') || JSON.parse(localStorage.getItem('r2deskTicketsV1') || 'null') || seed;
 tickets = tickets.map(t => ({ ...t, attachments: Array.isArray(t.attachments) ? t.attachments : [], messages: Array.isArray(t.messages) && t.messages.length ? t.messages : [{ author: t.requester, role: 'requester', at: t.created, text: t.description }] }));
-let role = 'requester', loginRole = 'requester', wizardStep = 1, selectedIssue = 'Incidente', selectedUrgency = 'Normal', selectedFiles = [], statusFilter = 'all', areaFilter = 'all', currentTicketId = null, knowledgeFilter = 'Todos', myAreaFilter = 'all', myDateFrom = '', myDateTo = '';
+const ADMIN_OPERATOR = 'Kevin Santos';
+let role = 'requester', loginRole = 'requester', wizardStep = 1, selectedIssue = 'Incidente', selectedUrgency = 'Normal', selectedFiles = [], statusFilter = 'all', areaFilter = 'all', currentTicketId = null, knowledgeFilter = 'Todos', myAreaFilter = 'all', myStatusFilter = 'all', myDateFrom = '', myDateTo = '';
+let reportArea = 'all', reportOwner = 'all', reportDateFrom = '', reportDateTo = '';
+let ticketDraftDirty = false, ticketOpenedWithPrefill = false;
 let notifications = JSON.parse(localStorage.getItem('r2deskNotificationsV1') || 'null') || [
     { id: 'portal-update-1209', type: 'portal', title: 'R2Desk atualizado', text: 'A Base de Conhecimento ganhou novos guias para primeiros acessos e melhorias de navegação.', at: '12/09/2026 17:00', read: false },
     { id: 'resolved-inc1079', type: 'ticket', ticketId: 'INC-1079', title: 'Chamado resolvido', text: 'INC-1079 • Dashboard comercial não atualizou foi marcado como resolvido.', at: '07/09/2026 17:02', read: false }
@@ -72,7 +75,7 @@ function esc(v) { return String(v ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;
 function toast(msg) { $('toast').textContent = msg; $('toast').classList.add('show'); clearTimeout(window.__toast); window.__toast = setTimeout(() => $('toast').classList.remove('show'), 2600); }
 function statusClass(s) { return s === 'Resolvido' ? 'b-done' : s === 'Em atendimento' ? 'b-progress' : s === 'Aguardando usuário' ? 'b-wait' : 'b-open'; }
 function prioClass(p) { return p === 'Crítica' ? 'p-critical' : p === 'Alta' ? 'p-high' : p === 'Média' ? 'p-medium' : 'p-low'; }
-function pageMeta(id) { const m = { portal: ['Portal de Serviços', 'Solicite suporte e acompanhe seus chamados'], myTickets: ['Meus chamados', 'Acompanhe suas solicitações'], knowledge: ['Base de conhecimento', 'Encontre respostas e procedimentos'], ticketDetail: ['Detalhes do chamado', 'Acompanhe e interaja com o atendimento'], articleDetail: ['Base de conhecimento', 'Procedimento e orientações'], adminDashboard: ['Dashboard da Central', 'Visão operacional do atendimento'], queue: ['Central de atendimento', 'Triagem, atribuição e acompanhamento'], catalog: ['Áreas & catálogo', 'Estrutura de serviços de TI'], reports: ['Relatórios', 'Indicadores do atendimento'] }; return m[id] || ['R2Desk Service Management', '']; }
+function pageMeta(id) { const m = { portal: ['Portal de Serviços', 'Solicite suporte e acompanhe seus chamados'], myTickets: ['Meus chamados', 'Acompanhe suas solicitações'], knowledge: ['Base de conhecimento', 'Encontre respostas e procedimentos'], ticketDetail: ['Detalhes do chamado', 'Acompanhe e interaja com o atendimento'], articleDetail: ['Base de conhecimento', 'Procedimento e orientações'], adminDashboard: ['Dashboard da Central', 'Visão operacional do atendimento'], queue: ['Central de atendimento', 'Triagem, atribuição e acompanhamento'], catalog: ['Áreas & catálogo', 'Estrutura de serviços de TI'], reports: ['Relatórios & exportações', 'Indicadores e arquivos para acompanhamento da operação'] }; return m[id] || ['R2Desk Service Management', '']; }
 function goPage(id) { $$('.page').forEach(p => p.classList.toggle('active', p.id === id)); $$('.nav button[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === id)); const [t, s] = pageMeta(id); $('topTitle').textContent = t; $('topSubtitle').textContent = s; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
 /* =========================================================
@@ -98,17 +101,226 @@ function renderAreas() { $('areaGrid').innerHTML = AREAS.map(a => `<article clas
 /* =========================================================
    Chamados do solicitante e painel administrativo
    ========================================================= */
-function requesterTickets() { return tickets.filter(t => t.email === 'solicitante@r2desk.com'); }
-function ticketCard(t) { return `<article class="ticket-card card" data-ticket="${t.id}"><div class="ticket-top"><span class="ticket-id">${t.id}</span><span class="badge ${statusClass(t.status)}">${t.status}</span></div><h3>${esc(t.subject)}</h3><p>${t.area} • ${t.service}</p><div class="ticket-foot"><span>Prioridade: <b class="${prioClass(t.priority)}">${t.priority}</b></span><span>SLA: ${t.sla}</span></div></article>`; }
-function recentRow(t) { return `<div class="recent-row" data-ticket="${t.id}"><span class="rid">${t.id}</span><div class="rsubject"><b>${esc(t.subject)}</b><span>${t.area} • ${t.service}</span></div><div class="rcell hide-sm">${t.created}</div><div class="hide-md"><span class="badge ${statusClass(t.status)}">${t.status}</span></div><div class="rcell hide-sm">SLA ${t.sla}</div><span class="go">→</span></div>`; }
-function ticketDateISO(created) { const m = String(created || '').match(/^(\d{2})\/(\d{2})\/(\d{4})/); return m ? `${m[3]}-${m[2]}-${m[1]}` : ''; }
-function filteredRequesterTickets() { return requesterTickets().filter(t => { const d = ticketDateISO(t.created); return (myAreaFilter === 'all' || t.area === myAreaFilter) && (!myDateFrom || d >= myDateFrom) && (!myDateTo || d <= myDateTo); }); }
-function renderRequester() { const own = requesterTickets(), filtered = filteredRequesterTickets(); $('requesterTicketCount').textContent = `${own.length} registrado(s)`; $('myTicketCards').innerHTML = filtered.map(ticketCard).join('') || '<div class="card empty">Nenhum chamado encontrado com os filtros selecionados.</div>'; if ($('myTicketFilterResult'))
-    $('myTicketFilterResult').textContent = `Exibindo ${filtered.length} de ${own.length} chamado(s)`; $('portalTickets').innerHTML = own.slice(0, 4).map(recentRow).join('') || '<div class="empty">Você ainda não possui chamados.</div>'; $('sumOpen').textContent = own.filter(t => t.status === 'Aberto').length; $('sumProgress').textContent = own.filter(t => t.status === 'Em atendimento').length; $('sumWait').textContent = own.filter(t => t.status === 'Aguardando usuário').length; bindTicketClicks(); }
-function queueRow(t) { return `<tr data-ticket="${t.id}"><td><b style="color:var(--brand)">${t.id}</b></td><td>${esc(t.subject)}</td><td>${esc(t.requester)}</td><td>${t.area}</td><td class="${prioClass(t.priority)}">${t.priority}</td><td><span class="badge ${statusClass(t.status)}">${t.status}</span></td><td>${t.sla}</td></tr>`; }
-function renderAdmin() { const active = tickets.filter(t => t.status !== 'Resolvido'); $('mOpen').textContent = active.length; $('mRisk').textContent = active.filter(t => ['Alta', 'Crítica'].includes(t.priority)).length; $('mDone').textContent = tickets.filter(t => t.status === 'Resolvido').length; $('recentAdminRows').innerHTML = tickets.slice(0, 5).map(t => `<tr data-ticket="${t.id}"><td><b>${t.id}</b></td><td>${esc(t.subject)}</td><td>${t.area}</td><td class="${prioClass(t.priority)}">${t.priority}</td><td><span class="badge ${statusClass(t.status)}">${t.status}</span></td></tr>`).join(''); $('areaHealth').innerHTML = AREAS.map(a => { const n = active.filter(t => t.area === a.name).length, p = Math.min(100, Math.max(10, n * 22)); return `<div class="health-row"><b>${a.name}</b><span>${n} ativo(s)</span><div class="progress"><i style="--w:${p}%"></i></div></div>`; }).join(''); $('rTotal').textContent = tickets.length; $('rProgress').textContent = tickets.filter(t => t.status === 'Em atendimento').length; $('rSolved').textContent = tickets.filter(t => t.status === 'Resolvido').length; $('rHigh').textContent = tickets.filter(t => ['Alta', 'Crítica'].includes(t.priority)).length; renderQueue(); bindTicketClicks(); }
-function renderQueue() { const q = ($('globalSearch').value || '').toLowerCase(); const list = tickets.filter(t => statusFilter === 'all' || t.status === statusFilter).filter(t => areaFilter === 'all' || t.area === areaFilter).filter(t => Object.values(t).join(' ').toLowerCase().includes(q)); $('queueRows').innerHTML = list.map(queueRow).join('') || '<tr><td colspan="7" class="empty">Nenhum chamado encontrado.</td></tr>'; bindTicketClicks(); }
-function renderAll() { renderAreas(); renderRequester(); renderAdmin(); renderKnowledge(); renderNotifications(); }
+function requesterTickets() {
+    return tickets.filter(t => t.email === 'solicitante@r2desk.com');
+}
+
+function ticketCard(t) {
+    return `<article class="ticket-card card" data-ticket="${t.id}">
+        <div class="ticket-top"><span class="ticket-id">${t.id}</span><span class="badge ${statusClass(t.status)}">${t.status}</span></div>
+        <h3>${esc(t.subject)}</h3>
+        <p>${t.area} • ${t.service}</p>
+        <div class="ticket-foot"><span>Prioridade: <b class="${prioClass(t.priority)}">${t.priority}</b></span><span>SLA: ${t.sla}</span></div>
+    </article>`;
+}
+
+function recentRow(t) {
+    return `<div class="recent-row" data-ticket="${t.id}">
+        <span class="rid">${t.id}</span>
+        <div class="rsubject"><b>${esc(t.subject)}</b><span>${t.area} • ${t.service}</span></div>
+        <div class="rcell hide-sm">${t.created}</div>
+        <div class="hide-md"><span class="badge ${statusClass(t.status)}">${t.status}</span></div>
+        <div class="rcell hide-sm">SLA ${t.sla}</div><span class="go">→</span>
+    </div>`;
+}
+
+function ticketDateISO(created) {
+    const m = String(created || '').match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+}
+
+function filteredRequesterTickets() {
+    return requesterTickets().filter(t => {
+        const d = ticketDateISO(t.created);
+        return (myAreaFilter === 'all' || t.area === myAreaFilter)
+            && (myStatusFilter === 'all' || t.status === myStatusFilter)
+            && (!myDateFrom || d >= myDateFrom)
+            && (!myDateTo || d <= myDateTo);
+    });
+}
+
+function renderRequester() {
+    const own = requesterTickets();
+    const filtered = filteredRequesterTickets();
+    $('requesterTicketCount').textContent = `${own.length} registrado(s)`;
+    $('myTicketCards').innerHTML = filtered.map(ticketCard).join('') || '<div class="card empty">Nenhum chamado encontrado com os filtros selecionados.</div>';
+    if ($('myTicketFilterResult')) $('myTicketFilterResult').textContent = `Exibindo ${filtered.length} de ${own.length} chamado(s)`;
+    $('portalTickets').innerHTML = own.slice(0, 4).map(recentRow).join('') || '<div class="empty">Você ainda não possui chamados.</div>';
+    $('sumOpen').textContent = own.filter(t => t.status === 'Aberto').length;
+    $('sumProgress').textContent = own.filter(t => t.status === 'Em atendimento').length;
+    $('sumWait').textContent = own.filter(t => t.status === 'Aguardando usuário').length;
+    bindTicketClicks();
+}
+
+function queueRow(t) {
+    return `<tr data-ticket="${t.id}"><td><b style="color:var(--brand)">${t.id}</b></td><td>${esc(t.subject)}</td><td>${esc(t.requester)}</td><td>${t.area}</td><td class="${prioClass(t.priority)}">${t.priority}</td><td><span class="badge ${statusClass(t.status)}">${t.status}</span></td><td>${t.sla}</td></tr>`;
+}
+
+function operatorSummary(list = tickets) {
+    const map = new Map();
+    list.filter(t => t.owner && t.owner !== 'Não atribuído').forEach(t => {
+        if (!map.has(t.owner)) map.set(t.owner, { owner: t.owner, total: 0, open: 0, progress: 0, wait: 0, solved: 0, incidents: 0 });
+        const row = map.get(t.owner);
+        row.total++;
+        if (t.status === 'Aberto') row.open++;
+        if (t.status === 'Em atendimento') row.progress++;
+        if (t.status === 'Aguardando usuário') row.wait++;
+        if (t.status === 'Resolvido') row.solved++;
+        if (t.type === 'Incidente') row.incidents++;
+    });
+    return Array.from(map.values()).sort((a, b) => b.total - a.total || a.owner.localeCompare(b.owner));
+}
+
+function renderOperatorOverview(active) {
+    if (!$('operatorOverview')) return;
+    const rows = operatorSummary(active);
+    $('operatorOverview').innerHTML = rows.length ? rows.map(o => `
+        <div class="operator-row">
+            <div class="operator-avatar">${initials(o.owner)}</div>
+            <div class="operator-info"><b>${esc(o.owner)}</b><span>${o.total} chamado(s) ativo(s)</span></div>
+            <div class="operator-mini"><strong>${o.progress}</strong><span>em atendimento</span></div>
+            <div class="operator-mini"><strong>${o.wait}</strong><span>aguardando</span></div>
+        </div>`).join('') : '<div class="empty">Nenhum atendimento atribuído no momento.</div>';
+}
+
+function renderAdmin() {
+    const active = tickets.filter(t => t.status !== 'Resolvido');
+    const operators = new Set(active.filter(t => t.owner && t.owner !== 'Não atribuído').map(t => t.owner));
+
+    $('mOpen').textContent = active.length;
+    $('mRisk').textContent = active.filter(t => ['Alta', 'Crítica'].includes(t.priority)).length;
+    $('mDone').textContent = tickets.filter(t => t.status === 'Resolvido').length;
+    if ($('mIncidents')) $('mIncidents').textContent = active.filter(t => t.type === 'Incidente').length;
+    if ($('mUnassigned')) $('mUnassigned').textContent = active.filter(t => !t.owner || t.owner === 'Não atribuído').length;
+    if ($('mOperators')) $('mOperators').textContent = operators.size;
+
+    $('recentAdminRows').innerHTML = tickets.slice(0, 5).map(t => `<tr data-ticket="${t.id}"><td><b>${t.id}</b></td><td>${esc(t.subject)}</td><td>${t.area}</td><td class="${prioClass(t.priority)}">${t.priority}</td><td><span class="badge ${statusClass(t.status)}">${t.status}</span></td></tr>`).join('');
+    $('areaHealth').innerHTML = AREAS.map(a => {
+        const n = active.filter(t => t.area === a.name).length;
+        const p = Math.min(100, Math.max(10, n * 22));
+        return `<div class="health-row"><b>${a.name}</b><span>${n} ativo(s)</span><div class="progress"><i style="--w:${p}%"></i></div></div>`;
+    }).join('');
+
+    $('rTotal').textContent = tickets.length;
+    $('rProgress').textContent = tickets.filter(t => t.status === 'Em atendimento').length;
+    $('rSolved').textContent = tickets.filter(t => t.status === 'Resolvido').length;
+    if ($('rIncidents')) $('rIncidents').textContent = tickets.filter(t => t.type === 'Incidente').length;
+
+    renderOperatorOverview(active);
+    renderReportControls();
+    renderReportSummary();
+    renderQueue();
+    bindTicketClicks();
+}
+
+function renderQueue() {
+    const q = ($('globalSearch').value || '').toLowerCase();
+    const list = tickets
+        .filter(t => statusFilter === 'all' || t.status === statusFilter)
+        .filter(t => areaFilter === 'all' || t.area === areaFilter)
+        .filter(t => Object.values(t).join(' ').toLowerCase().includes(q));
+    $('queueRows').innerHTML = list.map(queueRow).join('') || '<tr><td colspan="7" class="empty">Nenhum chamado encontrado.</td></tr>';
+    bindTicketClicks();
+}
+
+function renderAll() {
+    renderAreas();
+    renderRequester();
+    renderAdmin();
+    renderKnowledge();
+    renderNotifications();
+}
+
+/* =========================================================
+   Relatórios e exportação CSV - AC2 #11
+   ========================================================= */
+function csvCell(value) {
+    const text = String(value ?? '').replace(/\r?\n/g, ' ');
+    return `"${text.replace(/"/g, '""')}"`;
+}
+
+function downloadCsv(filename, headers, rows) {
+    const content = [headers, ...rows].map(row => row.map(csvCell).join(';')).join('\r\n');
+    const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
+function exportDateTag() {
+    return new Date().toISOString().slice(0, 10);
+}
+
+function reportFilteredTickets(source = tickets) {
+    return source.filter(t => {
+        const d = ticketDateISO(t.created);
+        return (reportArea === 'all' || t.area === reportArea)
+            && (reportOwner === 'all' || t.owner === reportOwner)
+            && (!reportDateFrom || d >= reportDateFrom)
+            && (!reportDateTo || d <= reportDateTo);
+    });
+}
+
+function renderReportControls() {
+    if (!$('reportArea') || !$('reportOwner')) return;
+    const owners = [...new Set(tickets.map(t => t.owner).filter(o => o && o !== 'Não atribuído'))].sort();
+    $('reportArea').innerHTML = '<option value="all">Todas as áreas</option>' + AREAS.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+    $('reportOwner').innerHTML = '<option value="all">Todos os operadores</option>' + owners.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join('');
+    $('reportArea').value = AREAS.some(a => a.name === reportArea) ? reportArea : 'all';
+    $('reportOwner').value = owners.includes(reportOwner) ? reportOwner : 'all';
+}
+
+function renderReportSummary() {
+    if (!$('closedReportCount')) return;
+    const filtered = reportFilteredTickets();
+    const closed = filtered.filter(t => t.status === 'Resolvido');
+    const incidents = filtered.filter(t => t.type === 'Incidente');
+    const operators = operatorSummary(filtered);
+    $('closedReportCount').textContent = `${closed.length} registro(s)`;
+    $('incidentReportCount').textContent = `${incidents.length} registro(s)`;
+    $('operatorReportCount').textContent = `${operators.length} operador(es)`;
+}
+
+function exportRequesterTickets() {
+    const rows = filteredRequesterTickets();
+    if (!rows.length) return toast('Nenhum chamado disponível para exportação com os filtros atuais.');
+    downloadCsv(`R2Desk_Meus_Chamados_${exportDateTag()}.csv`,
+        ['Protocolo', 'Assunto', 'Área', 'Serviço', 'Tipo', 'Urgência', 'Prioridade', 'Status', 'SLA', 'Data de abertura', 'Responsável'],
+        rows.map(t => [t.id, t.subject, t.area, t.service, t.type, t.urgency, t.priority, t.status, t.sla, t.created, t.owner]));
+    toast('Relatório dos seus chamados exportado.');
+}
+
+function exportClosedTickets() {
+    const rows = reportFilteredTickets(tickets.filter(t => t.status === 'Resolvido'));
+    if (!rows.length) return toast('Nenhum chamado encerrado encontrado com os filtros atuais.');
+    downloadCsv(`R2Desk_Chamados_Encerrados_${exportDateTag()}.csv`,
+        ['Protocolo', 'Assunto', 'Solicitante', 'Área', 'Serviço', 'Tipo', 'Prioridade', 'Responsável', 'Data de abertura', 'Status'],
+        rows.map(t => [t.id, t.subject, t.requester, t.area, t.service, t.type, t.priority, t.owner, t.created, t.status]));
+    toast('Relatório de chamados encerrados exportado.');
+}
+
+function exportIncidentTickets() {
+    const rows = reportFilteredTickets(tickets.filter(t => t.type === 'Incidente'));
+    if (!rows.length) return toast('Nenhum incidente encontrado com os filtros atuais.');
+    downloadCsv(`R2Desk_Incidentes_${exportDateTag()}.csv`,
+        ['Protocolo', 'Assunto', 'Solicitante', 'Área', 'Serviço', 'Prioridade', 'Urgência', 'Status', 'SLA', 'Responsável', 'Data de abertura'],
+        rows.map(t => [t.id, t.subject, t.requester, t.area, t.service, t.priority, t.urgency, t.status, t.sla, t.owner, t.created]));
+    toast('Relatório de incidentes exportado.');
+}
+
+function exportOperatorReport() {
+    const rows = operatorSummary(reportFilteredTickets());
+    if (!rows.length) return toast('Nenhum atendimento por operador encontrado com os filtros atuais.');
+    downloadCsv(`R2Desk_Atendimentos_por_Operador_${exportDateTag()}.csv`,
+        ['Operador', 'Total atribuído', 'Abertos', 'Em atendimento', 'Aguardando usuário', 'Resolvidos', 'Incidentes'],
+        rows.map(o => [o.owner, o.total, o.open, o.progress, o.wait, o.solved, o.incidents]));
+    toast('Relatório por operador exportado.');
+}
 
 /* =========================================================
    Base de conhecimento
@@ -120,143 +332,475 @@ function openArticle(id) { const a = ARTICLES.find(x => x.id === id); if (!a)
 /* =========================================================
    Abertura de chamado - fluxo em três etapas
    ========================================================= */
-function openTicket(area = 'Service Desk', prefill = '', service = '') { wizardStep = 1; selectedIssue = 'Incidente'; selectedUrgency = 'Normal'; selectedFiles = []; const selectedArea = AREAS.some(a => a.name === area) ? area : 'Service Desk'; populateAreaOptions(selectedArea); $('ticketArea').value = selectedArea; updateServiceOptions(service); $('ticketSubject').value = prefill; $('ticketDescription').value = ''; $$('.issue-option').forEach((x, i) => x.classList.toggle('selected', i === 0)); $$('.urgency').forEach((x, i) => x.classList.toggle('selected', i === 0)); renderFiles(); renderWizard(); $('ticketModal').classList.add('open'); }
-function closeTicket() { $('ticketModal').classList.remove('open'); }
-function updateServiceOptions(preselect = '') { const area = AREAS.find(a => a.name === $('ticketArea').value) || AREAS[0]; $('ticketService').innerHTML = area.services.map(s => `<option value="${s}"${s === preselect ? ' selected' : ''}>${s}</option>`).join(''); if (preselect && area.services.includes(preselect))
-    $('ticketService').value = preselect; }
-function renderWizard() { $$('.wizard-page').forEach(p => p.classList.toggle('active', +p.dataset.step === wizardStep)); $$('.step').forEach(s => { const n = +s.dataset.stepInd; s.classList.toggle('active', n === wizardStep); s.classList.toggle('done', n < wizardStep); }); $('wizardBack').classList.toggle('hidden', wizardStep === 1); $('wizardNext').classList.toggle('hidden', wizardStep === 3); $('wizardSubmit').classList.toggle('hidden', wizardStep !== 3); if (wizardStep === 3)
-    buildReview(); }
-function calcPriority() { if (selectedUrgency === 'Imediata')
-    return 'Crítica'; if (selectedUrgency === 'Alta')
-    return 'Alta'; if (selectedIssue === 'Incidente')
-    return 'Média'; return 'Baixa'; }
-function calcSla(p) { return p === 'Crítica' ? '1h' : p === 'Alta' ? '4h' : p === 'Média' ? '8h' : '24h'; }
-function humanSize(bytes) { if (bytes >= 1073741824)
-    return (bytes / 1073741824).toFixed(2) + ' GB'; if (bytes >= 1048576)
-    return (bytes / 1048576).toFixed(1) + ' MB'; if (bytes >= 1024)
-    return (bytes / 1024).toFixed(1) + ' KB'; return bytes + ' B'; }
-function renderFiles() { $('fileList').innerHTML = selectedFiles.map((f, i) => `<div class="file-item"><span><b>${esc(f.name)}</b><br><span class="muted">${humanSize(f.size)}</span></span><button type="button" data-remove-file="${i}">×</button></div>`).join(''); $$('[data-remove-file]').forEach(b => b.onclick = () => { selectedFiles.splice(+b.dataset.removeFile, 1); renderFiles(); }); }
-function buildReview() { const p = calcPriority(), files = selectedFiles.length ? selectedFiles.map(f => `${esc(f.name)} (${humanSize(f.size)})`).join('<br>') : 'Nenhum anexo'; $('ticketReview').innerHTML = `<div class="review-section"><strong>1. Direcionamento</strong><div class="review-kv"><span>Área</span><span>${$('ticketArea').value}</span><span>Serviço</span><span>${$('ticketService').value}</span><span>Tipo</span><span>${selectedIssue}</span></div></div><div class="review-section"><strong>2. O que será informado à TI</strong><div class="review-kv"><span>Assunto</span><span>${esc($('ticketSubject').value)}</span><span>Descrição</span><span>${esc($('ticketDescription').value).replace(/\n/g, '<br>')}</span><span>Urgência</span><span>${selectedUrgency}</span><span>Anexos</span><span>${files}</span></div></div><div class="review-section"><strong>3. Atendimento inicial</strong><div class="review-kv"><span>Prioridade estimada</span><span class="${prioClass(p)}">${p}</span><span>SLA inicial</span><span>${calcSla(p)}</span><span>Fila</span><span>${$('ticketArea').value}</span></div></div><div class="review-confirm"><b>Antes de enviar:</b> confirme que a descrição não contém senhas, códigos de MFA ou informações confidenciais desnecessárias. Depois do envio, você poderá conversar com a equipe de TI e complementar o chamado pela página de acompanhamento.</div>`; }
+function openTicket(area = 'Service Desk', prefill = '', service = '') {
+    wizardStep = 1;
+    selectedIssue = 'Incidente';
+    selectedUrgency = 'Normal';
+    selectedFiles = [];
+    ticketDraftDirty = false;
+    ticketOpenedWithPrefill = Boolean(prefill || service || area !== 'Service Desk');
+
+    const selectedArea = AREAS.some(a => a.name === area) ? area : 'Service Desk';
+    populateAreaOptions(selectedArea);
+    $('ticketArea').value = selectedArea;
+    updateServiceOptions(service);
+    $('ticketSubject').value = prefill;
+    $('ticketDescription').value = '';
+    $$('.issue-option').forEach((x, i) => x.classList.toggle('selected', i === 0));
+    $$('.urgency').forEach((x, i) => x.classList.toggle('selected', i === 0));
+    renderFiles();
+    renderWizard();
+    $('ticketModal').classList.add('open');
+}
+
+function closeTicket(force = false) {
+    if (!force && (ticketDraftDirty || ticketOpenedWithPrefill || selectedFiles.length)) {
+        $('discardTicketModal').classList.add('open');
+        return;
+    }
+    $('discardTicketModal').classList.remove('open');
+    $('ticketModal').classList.remove('open');
+    ticketDraftDirty = false;
+    ticketOpenedWithPrefill = false;
+}
+
+function updateServiceOptions(preselect = '') {
+    const area = AREAS.find(a => a.name === $('ticketArea').value) || AREAS[0];
+    $('ticketService').innerHTML = area.services.map(s => `<option value="${s}"${s === preselect ? ' selected' : ''}>${s}</option>`).join('');
+    if (preselect && area.services.includes(preselect)) $('ticketService').value = preselect;
+}
+
+function renderWizard() {
+    $$('.wizard-page').forEach(p => p.classList.toggle('active', +p.dataset.step === wizardStep));
+    $$('.step').forEach(s => {
+        const n = +s.dataset.stepInd;
+        s.classList.toggle('active', n === wizardStep);
+        s.classList.toggle('done', n < wizardStep);
+    });
+    $('wizardBack').classList.toggle('hidden', wizardStep === 1);
+    $('wizardNext').classList.toggle('hidden', wizardStep === 3);
+    $('wizardSubmit').classList.toggle('hidden', wizardStep !== 3);
+    if (wizardStep === 3) buildReview();
+}
+
+function calcPriority() {
+    if (selectedUrgency === 'Imediata') return 'Crítica';
+    if (selectedUrgency === 'Alta') return 'Alta';
+    if (selectedIssue === 'Incidente') return 'Média';
+    return 'Baixa';
+}
+
+function calcSla(p) {
+    return p === 'Crítica' ? '1h' : p === 'Alta' ? '4h' : p === 'Média' ? '8h' : '24h';
+}
+
+function humanSize(bytes) {
+    if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+    if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
+    if (bytes >= 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return bytes + ' B';
+}
+
+function renderFiles() {
+    $('fileList').innerHTML = selectedFiles.map((f, i) => `<div class="file-item"><span><b>${esc(f.name)}</b><br><span class="muted">${humanSize(f.size)}</span></span><button class="remove-file-btn" type="button" data-remove-file="${i}" aria-label="Remover ${esc(f.name)}">Remover</button></div>`).join('');
+    $$('[data-remove-file]').forEach(b => b.onclick = () => {
+        selectedFiles.splice(+b.dataset.removeFile, 1);
+        ticketDraftDirty = true;
+        renderFiles();
+    });
+}
+
+function buildReview() {
+    const p = calcPriority();
+    const files = selectedFiles.length ? selectedFiles.map(f => `${esc(f.name)} (${humanSize(f.size)})`).join('<br>') : 'Nenhum anexo';
+    $('ticketReview').innerHTML = `<div class="review-section"><strong>1. Direcionamento</strong><div class="review-kv"><span>Área</span><span>${$('ticketArea').value}</span><span>Serviço</span><span>${$('ticketService').value}</span><span>Tipo</span><span>${selectedIssue}</span></div></div><div class="review-section"><strong>2. O que será informado à TI</strong><div class="review-kv"><span>Assunto</span><span>${esc($('ticketSubject').value)}</span><span>Descrição</span><span>${esc($('ticketDescription').value).replace(/\n/g, '<br>')}</span><span>Urgência</span><span>${selectedUrgency}</span><span>Anexos</span><span>${files}</span></div></div><div class="review-section"><strong>3. Atendimento inicial</strong><div class="review-kv"><span>Prioridade estimada</span><span class="${prioClass(p)}">${p}</span><span>SLA inicial</span><span>${calcSla(p)}</span><span>Fila</span><span>${$('ticketArea').value}</span></div></div><div class="review-confirm"><b>Antes de enviar:</b> confirme que a descrição não contém senhas, códigos de MFA ou informações confidenciais desnecessárias. Depois do envio, você poderá conversar com a equipe de TI e complementar o chamado pela página de acompanhamento.</div>`;
+}
 
 /* =========================================================
    Detalhes do chamado e interação Solicitante x TI
    ========================================================= */
-function openTicketDetail(id) { const t = tickets.find(x => x.id === id); if (!t)
-    return; currentTicketId = id; const attachments = t.attachments?.length ? t.attachments.map(f => `<div class="attachment-chip"><span><b>${esc(f.name)}</b><br><span class="muted">${humanSize(f.size || 0)}</span></span><span>Arquivo</span></div>`).join('') : '<div class="muted" style="font-size:9px">Nenhum anexo enviado.</div>'; const messages = (t.messages || []).map(m => `<div class="message ${m.role === role ? 'mine' : ''} ${m.role === 'admin' ? 'support' : ''}"><div class="message-avatar">${m.role === 'admin' ? 'TI' : initials(m.author)}</div><div class="bubble"><b>${esc(m.author)}</b><p>${esc(m.text)}</p><small>${esc(m.at)}</small></div></div>`).join('') || '<div class="empty">Ainda não há interações neste chamado.</div>'; const adminActions = role === 'admin' ? `<div class="side-section card"><h3>Atendimento</h3><div class="admin-action-grid"><div class="field"><label>Status</label><select id="detailStatus"><option${t.status === 'Aberto' ? ' selected' : ''}>Aberto</option><option${t.status === 'Em atendimento' ? ' selected' : ''}>Em atendimento</option><option${t.status === 'Aguardando usuário' ? ' selected' : ''}>Aguardando usuário</option><option${t.status === 'Resolvido' ? ' selected' : ''}>Resolvido</option></select></div><div class="field"><label>Responsável</label><select id="detailOwner"><option${t.owner === 'Não atribuído' ? ' selected' : ''}>Não atribuído</option><option${t.owner === 'Kevin Santos' ? ' selected' : ''}>Kevin Santos</option><option${t.owner === 'Ana Costa' ? ' selected' : ''}>Ana Costa</option><option${t.owner === 'Lucas Rocha' ? ' selected' : ''}>Lucas Rocha</option><option${t.owner === 'Carla Mendes' ? ' selected' : ''}>Carla Mendes</option><option${t.owner === 'Marcelo Alves' ? ' selected' : ''}>Marcelo Alves</option></select></div></div><button class="btn btn-primary btn-block" id="saveTicketAdmin" style="margin-top:9px">Salvar atendimento</button></div>` : ''; $('ticketDetailContent').innerHTML = `<div class="ticket-detail-head"><div><button class="back-link" id="backFromTicket">← Voltar</button><h1>${esc(t.subject)}</h1><div class="meta-line">${t.id} • aberto em ${t.created} por ${esc(t.requester)}</div></div><div style="display:flex;gap:7px;align-items:center"><span class="badge ${statusClass(t.status)}">${t.status}</span><span class="badge" style="background:var(--panel2);color:var(--text)">${t.area}</span></div></div><div class="ticket-detail-grid"><div class="conversation-card card"><div class="conversation-head"><h3>Conversa do chamado</h3><span>${(t.messages || []).length} interação(ões)</span></div><div class="thread">${messages}</div><div class="reply-box"><textarea id="ticketReply" placeholder="${role === 'admin' ? 'Escreva uma atualização para o solicitante...' : 'Ex.: Bom dia! Alguma novidade sobre o meu chamado?'}"></textarea><div class="reply-actions"><span>As mensagens ficam registradas no histórico do chamado.</span><button class="btn btn-primary" id="sendReply">Enviar mensagem</button></div></div></div><aside class="ticket-side"><div class="side-section card"><h3>Resumo do chamado</h3><div class="detail-kv"><span>Status</span><span><span class="badge ${statusClass(t.status)}">${t.status}</span></span><span>Prioridade</span><span class="${prioClass(t.priority)}">${t.priority}</span><span>SLA</span><span>${t.sla}</span><span>Área</span><span>${t.area}</span><span>Serviço</span><span>${t.service}</span><span>Responsável</span><span>${t.owner}</span></div></div>${adminActions}<div class="side-section card"><h3>Descrição inicial</h3><p style="font-size:9px;line-height:1.6;margin:0">${esc(t.description)}</p></div><div class="side-section card"><h3>Anexos</h3>${attachments}</div><div class="side-section card"><h3>Histórico</h3><div class="timeline"><div class="event"><b>Chamado registrado</b><p>${t.created}</p></div><div class="event"><b>Direcionado para ${t.group}</b><p>Classificação pelo catálogo.</p></div>${t.status !== 'Aberto' ? `<div class="event"><b>Status: ${t.status}</b><p>Última situação registrada.</p></div>` : ''}</div></div></aside></div>`; goPage('ticketDetail'); $('backFromTicket').onclick = () => goPage(role === 'admin' ? 'queue' : 'myTickets'); $('sendReply').onclick = () => { const text = $('ticketReply').value.trim(); if (!text) {
-    toast('Escreva uma mensagem antes de enviar.');
-    return;
-} t.messages = t.messages || []; t.messages.push({ author: role === 'admin' ? 'Equipe de TI' : 'Kevin Santos', role: role === 'admin' ? 'admin' : 'requester', at: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }), text }); if (role === 'admin' && t.email === 'solicitante@r2desk.com')
-    addNotification({ type: 'ticket', ticketId: t.id, title: 'Nova atualização no chamado', text: `${t.id} • A equipe de TI enviou uma nova mensagem.` }); if (role === 'requester' && t.status === 'Aguardando usuário')
-    t.status = 'Em atendimento'; save(); renderAll(); openTicketDetail(id); toast('Mensagem adicionada ao chamado.'); }; if (role === 'admin')
-    $('saveTicketAdmin').onclick = () => { const previousStatus = t.status; t.status = $('detailStatus').value; t.owner = $('detailOwner').value; if (t.status === 'Resolvido')
-        t.sla = 'Concluído'; if (previousStatus !== 'Resolvido' && t.status === 'Resolvido' && t.email === 'solicitante@r2desk.com')
-        addNotification({ type: 'ticket', ticketId: t.id, title: 'Seu chamado foi resolvido', text: `${t.id} • ${t.subject} foi marcado como resolvido.` }); save(); renderAll(); openTicketDetail(id); toast('Atendimento atualizado.'); }; }
-function initials(name) { return String(name || 'U').split(' ').slice(0, 2).map(x => x[0]).join('').toUpperCase(); }
-function bindTicketClicks() { $$('[data-ticket]').forEach(x => x.onclick = () => openTicketDetail(x.dataset.ticket)); }
-function bindPageTargets() { $$('[data-page-target]').forEach(b => b.onclick = () => goPage(b.dataset.pageTarget)); }
-$$('.login-tab').forEach(tab => tab.onclick = () => { loginRole = tab.dataset.loginRole; $$('.login-tab').forEach(x => x.classList.toggle('active', x === tab)); if (loginRole === 'admin') {
-    $('loginEmail').value = 'admin@r2desk.com';
-    $('loginPassword').value = 'admin123';
-    $('demoBox').innerHTML = '<b>Conta de demonstração — Administrador</b><br>admin@r2desk.com<br>Senha: admin123';
+function openTicketDetail(id) {
+    const t = tickets.find(x => x.id === id);
+    if (!t) return;
+    currentTicketId = id;
+
+    const attachments = t.attachments?.length
+        ? t.attachments.map(f => `<div class="attachment-chip"><span><b>${esc(f.name)}</b><br><span class="muted">${humanSize(f.size || 0)}</span></span><span>Arquivo</span></div>`).join('')
+        : '<div class="muted" style="font-size:9px">Nenhum anexo enviado.</div>';
+
+    const messages = (t.messages || []).map(m => `<div class="message ${m.role === role ? 'mine' : ''} ${m.role === 'admin' ? 'support' : ''}">
+        <div class="message-avatar">${initials(m.author)}</div>
+        <div class="bubble"><b>${esc(m.author)}</b><p>${esc(m.text)}</p><small>${esc(m.at)}</small></div>
+    </div>`).join('') || '<div class="empty">Ainda não há interações neste chamado.</div>';
+
+    const requesterStatusMessage = t.status === 'Aguardando usuário'
+        ? '<b>Ação necessária:</b> a equipe de TI está aguardando uma resposta sua para continuar o atendimento.'
+        : t.status === 'Resolvido'
+            ? '<b>Atendimento concluído:</b> este chamado foi marcado como resolvido pela equipe responsável.'
+            : '<b>Acompanhamento:</b> você pode responder abaixo sem abrir um novo chamado.';
+
+    const adminActions = role === 'admin' ? `<div class="side-section card admin-service-card">
+        <div class="side-section-title"><div><span>Gestão do atendimento</span><h3>Triagem e responsabilidade</h3></div><span class="operator-label">Operador atual: ${esc(t.owner === 'Não atribuído' ? ADMIN_OPERATOR : t.owner)}</span></div>
+        <div class="admin-action-grid">
+            <div class="field"><label>Status</label><select id="detailStatus"><option${t.status === 'Aberto' ? ' selected' : ''}>Aberto</option><option${t.status === 'Em atendimento' ? ' selected' : ''}>Em atendimento</option><option${t.status === 'Aguardando usuário' ? ' selected' : ''}>Aguardando usuário</option><option${t.status === 'Resolvido' ? ' selected' : ''}>Resolvido</option></select></div>
+            <div class="field"><label>Responsável</label><select id="detailOwner"><option${t.owner === 'Não atribuído' ? ' selected' : ''}>Não atribuído</option><option${t.owner === 'Kevin Santos' ? ' selected' : ''}>Kevin Santos</option><option${t.owner === 'Ana Costa' ? ' selected' : ''}>Ana Costa</option><option${t.owner === 'Lucas Rocha' ? ' selected' : ''}>Lucas Rocha</option><option${t.owner === 'Carla Mendes' ? ' selected' : ''}>Carla Mendes</option><option${t.owner === 'Marcelo Alves' ? ' selected' : ''}>Marcelo Alves</option></select></div>
+        </div>
+        <button class="btn btn-primary btn-block" id="saveTicketAdmin" style="margin-top:9px">Salvar atendimento</button>
+    </div>` : '';
+
+    $('ticketDetailContent').innerHTML = `<div class="ticket-detail-head">
+        <div><button class="back-link" id="backFromTicket">← Voltar</button><h1>${esc(t.subject)}</h1><div class="meta-line">${t.id} • aberto em ${t.created} por ${esc(t.requester)}</div></div>
+        <div class="ticket-head-badges"><span class="badge ${statusClass(t.status)}">${t.status}</span><span class="badge ticket-area-badge">${t.area}</span></div>
+    </div>
+    ${role === 'requester' ? `<div class="requester-detail-note card">${requesterStatusMessage}</div>` : ''}
+    <div class="ticket-detail-grid">
+        <div class="ticket-main-column">
+            <section class="ticket-description-card card">
+                <div class="ticket-description-head"><div><span>Descrição do chamado</span><h3>Informação registrada na abertura</h3></div><span class="ticket-type-pill">${t.type}</span></div>
+                <p>${esc(t.description)}</p>
+            </section>
+            <div class="conversation-card card">
+                <div class="conversation-head"><div><h3>Conversa do chamado</h3><small>Solicitante e TI no mesmo histórico</small></div><span>${(t.messages || []).length} interação(ões)</span></div>
+                <div class="thread">${messages}</div>
+                <div class="reply-box"><textarea id="ticketReply" placeholder="${role === 'admin' ? 'Escreva uma atualização para o solicitante...' : 'Ex.: Bom dia! Alguma novidade sobre o meu chamado?'}"></textarea><div class="reply-actions"><span>As mensagens ficam registradas no histórico do chamado.</span><button class="btn btn-primary" id="sendReply">Enviar mensagem</button></div></div>
+            </div>
+        </div>
+        <aside class="ticket-side">
+            <div class="side-section card"><h3>Resumo do chamado</h3><div class="detail-kv"><span>Status</span><span><span class="badge ${statusClass(t.status)}">${t.status}</span></span><span>Prioridade</span><span class="${prioClass(t.priority)}">${t.priority}</span><span>SLA</span><span>${t.sla}</span><span>Área</span><span>${t.area}</span><span>Serviço</span><span>${t.service}</span><span>Responsável</span><span>${t.owner}</span></div></div>
+            ${adminActions}
+            <div class="side-section card"><h3>Anexos</h3>${attachments}</div>
+            <div class="side-section card"><h3>Histórico</h3><div class="timeline"><div class="event"><b>Chamado registrado</b><p>${t.created}</p></div><div class="event"><b>Direcionado para ${t.group}</b><p>Classificação pelo catálogo.</p></div>${t.status !== 'Aberto' ? `<div class="event"><b>Status: ${t.status}</b><p>Última situação registrada.</p></div>` : ''}</div></div>
+        </aside>
+    </div>`;
+
+    goPage('ticketDetail');
+    $('backFromTicket').onclick = () => goPage(role === 'admin' ? 'queue' : 'myTickets');
+
+    $('sendReply').onclick = () => {
+        const text = $('ticketReply').value.trim();
+        if (!text) return toast('Escreva uma mensagem antes de enviar.');
+
+        t.messages = t.messages || [];
+        let author = 'Kevin Santos';
+        if (role === 'admin') {
+            if (!t.owner || t.owner === 'Não atribuído') t.owner = ADMIN_OPERATOR;
+            author = t.owner;
+        }
+        t.messages.push({
+            author,
+            role: role === 'admin' ? 'admin' : 'requester',
+            at: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            text
+        });
+
+        if (role === 'admin' && t.email === 'solicitante@r2desk.com') {
+            addNotification({ type: 'ticket', ticketId: t.id, title: 'Nova atualização no chamado', text: `${t.id} • ${author} enviou uma nova mensagem.` });
+        }
+        if (role === 'requester' && t.status === 'Aguardando usuário') t.status = 'Em atendimento';
+
+        save();
+        renderAll();
+        openTicketDetail(id);
+        toast('Mensagem adicionada ao chamado.');
+    };
+
+    if (role === 'admin') {
+        $('saveTicketAdmin').onclick = () => {
+            const previousStatus = t.status;
+            t.status = $('detailStatus').value;
+            t.owner = $('detailOwner').value;
+            if (t.status === 'Resolvido') t.sla = 'Concluído';
+            if (previousStatus !== 'Resolvido' && t.status === 'Resolvido' && t.email === 'solicitante@r2desk.com') {
+                addNotification({ type: 'ticket', ticketId: t.id, title: 'Seu chamado foi resolvido', text: `${t.id} • ${t.subject} foi marcado como resolvido.` });
+            }
+            save();
+            renderAll();
+            openTicketDetail(id);
+            toast('Atendimento atualizado.');
+        };
+    }
 }
-else {
-    $('loginEmail').value = 'solicitante@r2desk.com';
-    $('loginPassword').value = '123456';
-    $('demoBox').innerHTML = '<b>Conta de demonstração — Solicitante</b><br>solicitante@r2desk.com<br>Senha: 123456';
-} });
+
+function initials(name) {
+    return String(name || 'U').replace(/\s+-\s+TI$/i, '').split(' ').filter(Boolean).slice(0, 2).map(x => x[0]).join('').toUpperCase();
+}
+
+function bindTicketClicks() {
+    $$('[data-ticket]').forEach(x => x.onclick = () => openTicketDetail(x.dataset.ticket));
+}
+
+function bindPageTargets() {
+    $$('[data-page-target]').forEach(b => b.onclick = () => goPage(b.dataset.pageTarget));
+}
+
+$$('.login-tab').forEach(tab => tab.onclick = () => {
+    loginRole = tab.dataset.loginRole;
+    $$('.login-tab').forEach(x => x.classList.toggle('active', x === tab));
+    $('loginEmail').value = '';
+    $('loginPassword').value = '';
+    $('loginError').classList.remove('show');
+});
+
+function loginAsTest(testRole) {
+    loginRole = testRole;
+    $$('.login-tab').forEach(x => x.classList.toggle('active', x.dataset.loginRole === testRole));
+    role = testRole;
+    sessionStorage.setItem('r2deskRole', role);
+    enterApp();
+}
 
 /* =========================================================
    Login demonstrativo e sessão do protótipo
    ========================================================= */
-$('loginForm').onsubmit = e => { e.preventDefault(); const em = $('loginEmail').value.trim().toLowerCase(), pw = $('loginPassword').value; const ok = loginRole === 'admin' ? (em === 'admin@r2desk.com' && pw === 'admin123') : (em === 'solicitante@r2desk.com' && pw === '123456'); if (!ok) {
-    $('loginError').classList.add('show');
-    return;
-} $('loginError').classList.remove('show'); role = loginRole; sessionStorage.setItem('r2deskRole', role); enterApp(); };
-function enterApp() { $('loginScreen').classList.add('hidden'); $('app').classList.remove('hidden'); const admin = role === 'admin'; $('navRequester').classList.toggle('hidden', admin); $('navAdmin').classList.toggle('hidden', !admin); $('notificationWrap').classList.toggle('hidden', admin); $('sideName').textContent = admin ? 'Administrador R2Desk' : 'Kevin Santos'; $('sideRole').textContent = admin ? 'Administrador' : 'Solicitante'; $('sideAvatar').textContent = admin ? 'AD' : 'KS'; $('topNewTicket').textContent = admin ? '+ Registrar chamado' : '+ Novo chamado'; renderAll(); bindPageTargets(); goPage(admin ? 'adminDashboard' : 'portal'); }
-$('logoutBtn').onclick = () => { $('logoutModal').classList.add('open'); };
-$('cancelLogout').onclick = () => { $('logoutModal').classList.remove('open'); };
-$('confirmLogout').onclick = () => { sessionStorage.removeItem('r2deskRole'); $('logoutModal').classList.remove('open'); $('notificationPanel').classList.remove('open'); $('app').classList.add('hidden'); $('loginScreen').classList.remove('hidden'); };
-$('logoutModal').onclick = e => { if (e.target === $('logoutModal'))
-    $('logoutModal').classList.remove('open'); };
+$('loginForm').onsubmit = e => {
+    e.preventDefault();
+    const em = $('loginEmail').value.trim().toLowerCase();
+    const pw = $('loginPassword').value;
+    const ok = loginRole === 'admin'
+        ? (em === 'admin@r2desk.com' && pw === 'admin123')
+        : (em === 'solicitante@r2desk.com' && pw === '123456');
+
+    if (!ok) {
+        $('loginError').classList.add('show');
+        return;
+    }
+
+    $('loginError').classList.remove('show');
+    role = loginRole;
+    sessionStorage.setItem('r2deskRole', role);
+    enterApp();
+};
+
+function enterApp() {
+    $('loginScreen').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    const admin = role === 'admin';
+    $('navRequester').classList.toggle('hidden', admin);
+    $('navAdmin').classList.toggle('hidden', !admin);
+    $('notificationWrap').classList.toggle('hidden', admin);
+    $('sideName').textContent = admin ? ADMIN_OPERATOR : 'Kevin Santos';
+    $('sideRole').textContent = admin ? 'Administrador / Operador' : 'Solicitante';
+    $('sideAvatar').textContent = admin ? initials(ADMIN_OPERATOR) : 'KS';
+    $('topNewTicket').textContent = admin ? '+ Registrar chamado' : '+ Novo chamado';
+    renderAll();
+    bindPageTargets();
+    goPage(admin ? 'adminDashboard' : 'portal');
+}
+
+$('testRequester').onclick = () => loginAsTest('requester');
+$('testAdmin').onclick = () => loginAsTest('admin');
+$('logoutBtn').onclick = () => $('logoutModal').classList.add('open');
+$('cancelLogout').onclick = () => $('logoutModal').classList.remove('open');
+$('confirmLogout').onclick = () => {
+    sessionStorage.removeItem('r2deskRole');
+    $('logoutModal').classList.remove('open');
+    $('notificationPanel').classList.remove('open');
+    $('app').classList.add('hidden');
+    $('loginScreen').classList.remove('hidden');
+    $('loginEmail').value = '';
+    $('loginPassword').value = '';
+};
+$('logoutModal').onclick = e => { if (e.target === $('logoutModal')) $('logoutModal').classList.remove('open'); };
 $$('.nav button[data-page]').forEach(b => b.onclick = () => goPage(b.dataset.page));
 
 /* =========================================================
    Eventos da interface e formulário de chamados
    ========================================================= */
 $('topNewTicket').onclick = () => openTicket();
-$('heroOpenTicket').onclick = () => openTicket('Service Desk', $('serviceSearch').value.trim());
 $$('[data-new-ticket]').forEach(b => b.onclick = () => openTicket());
-$$('.quick-action').forEach(c => c.onclick = () => { const q = c.dataset.quick; if (q === 'Problema no notebook')
-    openTicket('Help Desk', q, 'Notebook / Desktop');
-else if (q === 'Relatório / BI')
-    openTicket('BI', q, 'Power BI');
-else if (q === 'Acesso a sistema')
-    openTicket('Service Desk', q, 'Acessos e permissões');
-else
-    openTicket('Service Desk', q, 'Senha e desbloqueio'); });
-$('ticketArea').onchange = () => updateServiceOptions();
-$('issueGrid').onclick = e => { const o = e.target.closest('.issue-option'); if (!o)
-    return; selectedIssue = o.dataset.issue; $$('.issue-option').forEach(x => x.classList.toggle('selected', x === o)); };
-$('urgencyRow').onclick = e => { const b = e.target.closest('.urgency'); if (!b)
-    return; selectedUrgency = b.dataset.urgency; $$('.urgency').forEach(x => x.classList.toggle('selected', x === b)); };
+$$('.quick-action').forEach(c => c.onclick = () => {
+    const q = c.dataset.quick;
+    if (q === 'Problema no notebook') openTicket('Help Desk', q, 'Notebook / Desktop');
+    else if (q === 'Relatório / BI') openTicket('BI', q, 'Power BI');
+    else if (q === 'Acesso a sistema') openTicket('Service Desk', q, 'Acessos e permissões');
+    else openTicket('Service Desk', q, 'Senha e desbloqueio');
+});
+
+$('ticketArea').onchange = () => { ticketDraftDirty = true; updateServiceOptions(); };
+$('ticketService').onchange = () => { ticketDraftDirty = true; };
+$('ticketSubject').oninput = () => { ticketDraftDirty = true; };
+$('ticketDescription').oninput = () => { ticketDraftDirty = true; };
+
+$('issueGrid').onclick = e => {
+    const o = e.target.closest('.issue-option');
+    if (!o) return;
+    selectedIssue = o.dataset.issue;
+    ticketDraftDirty = true;
+    $$('.issue-option').forEach(x => x.classList.toggle('selected', x === o));
+};
+
+$('urgencyRow').onclick = e => {
+    const b = e.target.closest('.urgency');
+    if (!b) return;
+    selectedUrgency = b.dataset.urgency;
+    ticketDraftDirty = true;
+    $$('.urgency').forEach(x => x.classList.toggle('selected', x === b));
+};
+
 $('chooseFiles').onclick = () => $('ticketFiles').click();
-$('ticketFiles').onchange = e => { const incoming = Array.from(e.target.files || []); const allowed = incoming.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/') || f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')); if (allowed.length !== incoming.length)
-    toast('Alguns arquivos foram ignorados. Use imagem, vídeo ou PDF.'); const merged = [...selectedFiles, ...allowed], total = merged.reduce((s, f) => s + f.size, 0); if (total > 2 * 1024 * 1024 * 1024) {
-    toast('O limite total de anexos é 2 GB.');
-    e.target.value = '';
-    return;
-} selectedFiles = merged; renderFiles(); e.target.value = ''; };
-$('wizardBack').onclick = () => { if (wizardStep > 1) {
-    wizardStep--;
-    renderWizard();
-} };
-$('wizardNext').onclick = () => { if (wizardStep === 1) {
-    wizardStep = 2;
-    renderWizard();
-    return;
-} if (wizardStep === 2) {
-    if (!$('ticketSubject').value.trim() || !$('ticketDescription').value.trim()) {
-        toast('Preencha assunto e descrição para continuar.');
+$('ticketFiles').onchange = e => {
+    const incoming = Array.from(e.target.files || []);
+    const allowed = incoming.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/') || f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+    if (allowed.length !== incoming.length) toast('Alguns arquivos foram ignorados. Use imagem, vídeo ou PDF.');
+    const merged = [...selectedFiles, ...allowed];
+    const total = merged.reduce((sum, f) => sum + f.size, 0);
+    if (total > 2 * 1024 * 1024 * 1024) {
+        toast('O limite total de anexos é 2 GB.');
+        e.target.value = '';
         return;
     }
-    wizardStep = 3;
-    renderWizard();
-} };
-$('wizardCancel').onclick = closeTicket;
-$('closeTicketModal').onclick = closeTicket;
-$('ticketModal').onclick = e => { if (e.target === $('ticketModal'))
-    closeTicket(); };
-function createTicketFromWizard() { const area = $('ticketArea').value, service = $('ticketService').value, subject = $('ticketSubject').value.trim(), description = $('ticketDescription').value.trim(); if (!area || !AREAS.some(a => a.name === area)) {
-    wizardStep = 1;
-    renderWizard();
-    toast('Selecione a área de atendimento.');
-    return;
-} if (!service) {
-    wizardStep = 1;
-    renderWizard();
-    toast('Selecione o serviço.');
-    return;
-} if (!subject || !description) {
-    wizardStep = 2;
-    renderWizard();
-    toast('Preencha assunto e descrição.');
-    return;
-} const max = Math.max(...tickets.map(t => parseInt(t.id.replace(/\D/g, '')) || 0), 1084) + 1, p = calcPriority(), created = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); const t = { id: `INC-${max}`, subject, requester: role === 'admin' ? 'Administrador R2Desk' : 'Kevin Santos', email: role === 'admin' ? 'admin@r2desk.com' : 'solicitante@r2desk.com', area, service, type: selectedIssue, priority: p, urgency: selectedUrgency, status: 'Aberto', owner: 'Não atribuído', group: area, sla: calcSla(p), created, description, attachments: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })), messages: [{ author: role === 'admin' ? 'Administrador R2Desk' : 'Kevin Santos', role: role === 'admin' ? 'admin' : 'requester', at: created, text: description }] }; tickets.unshift(t); save(); closeTicket(); renderAll(); toast(`${t.id} criado com sucesso.`); openTicketDetail(t.id); }
+    selectedFiles = merged;
+    if (allowed.length) ticketDraftDirty = true;
+    renderFiles();
+    e.target.value = '';
+};
+
+$('wizardBack').onclick = () => {
+    if (wizardStep > 1) {
+        wizardStep--;
+        renderWizard();
+    }
+};
+
+$('wizardNext').onclick = () => {
+    if (wizardStep === 1) {
+        wizardStep = 2;
+        renderWizard();
+        return;
+    }
+    if (wizardStep === 2) {
+        if (!$('ticketSubject').value.trim() || !$('ticketDescription').value.trim()) {
+            toast('Preencha assunto e descrição para continuar.');
+            return;
+        }
+        wizardStep = 3;
+        renderWizard();
+    }
+};
+
+$('wizardCancel').onclick = () => closeTicket();
+$('closeTicketModal').onclick = () => closeTicket();
+$('ticketModal').onclick = e => { if (e.target === $('ticketModal')) closeTicket(); };
+$('keepTicketDraft').onclick = () => $('discardTicketModal').classList.remove('open');
+$('confirmDiscardTicket').onclick = () => closeTicket(true);
+$('discardTicketModal').onclick = e => { if (e.target === $('discardTicketModal')) $('discardTicketModal').classList.remove('open'); };
+
+function createTicketFromWizard() {
+    const area = $('ticketArea').value;
+    const service = $('ticketService').value;
+    const subject = $('ticketSubject').value.trim();
+    const description = $('ticketDescription').value.trim();
+
+    if (!area || !AREAS.some(a => a.name === area)) {
+        wizardStep = 1;
+        renderWizard();
+        return toast('Selecione a área de atendimento.');
+    }
+    if (!service) {
+        wizardStep = 1;
+        renderWizard();
+        return toast('Selecione o serviço.');
+    }
+    if (!subject || !description) {
+        wizardStep = 2;
+        renderWizard();
+        return toast('Preencha assunto e descrição.');
+    }
+
+    const max = Math.max(...tickets.map(t => parseInt(t.id.replace(/\D/g, '')) || 0), 1084) + 1;
+    const p = calcPriority();
+    const created = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const t = {
+        id: `INC-${max}`,
+        subject,
+        requester: role === 'admin' ? ADMIN_OPERATOR : 'Kevin Santos',
+        email: role === 'admin' ? 'admin@r2desk.com' : 'solicitante@r2desk.com',
+        area,
+        service,
+        type: selectedIssue,
+        priority: p,
+        urgency: selectedUrgency,
+        status: 'Aberto',
+        owner: role === 'admin' ? ADMIN_OPERATOR : 'Não atribuído',
+        group: area,
+        sla: calcSla(p),
+        created,
+        description,
+        attachments: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
+        messages: [{ author: role === 'admin' ? ADMIN_OPERATOR : 'Kevin Santos', role: role === 'admin' ? 'admin' : 'requester', at: created, text: description }]
+    };
+
+    tickets.unshift(t);
+    save();
+    closeTicket(true);
+    renderAll();
+    toast(`${t.id} criado com sucesso.`);
+    openTicketDetail(t.id);
+}
+
 $('ticketForm').onsubmit = e => { e.preventDefault(); createTicketFromWizard(); };
-$('statusFilters').onclick = e => { const b = e.target.closest('[data-filter]'); if (!b)
-    return; statusFilter = b.dataset.filter; $$('#statusFilters .chip').forEach(x => x.classList.toggle('active', x === b)); renderQueue(); };
+$('statusFilters').onclick = e => {
+    const b = e.target.closest('[data-filter]');
+    if (!b) return;
+    statusFilter = b.dataset.filter;
+    $$('#statusFilters .chip').forEach(x => x.classList.toggle('active', x === b));
+    renderQueue();
+};
 $('areaFilter').onchange = e => { areaFilter = e.target.value; renderQueue(); };
 $('globalSearch').oninput = renderQueue;
-if ($('knowledgeSearch'))
-    $('knowledgeSearch').oninput = renderKnowledge;
+if ($('knowledgeSearch')) $('knowledgeSearch').oninput = renderKnowledge;
+
 $('myAreaFilter').onchange = e => { myAreaFilter = e.target.value; renderRequester(); };
+$('myStatusFilter').onchange = e => { myStatusFilter = e.target.value; renderRequester(); };
 $('myDateFrom').onchange = e => { myDateFrom = e.target.value; renderRequester(); };
 $('myDateTo').onchange = e => { myDateTo = e.target.value; renderRequester(); };
-$('clearMyTicketFilters').onclick = () => { myAreaFilter = 'all'; myDateFrom = ''; myDateTo = ''; $('myAreaFilter').value = 'all'; $('myDateFrom').value = ''; $('myDateTo').value = ''; renderRequester(); };
-$('notificationBtn').onclick = e => { e.stopPropagation(); const open = !$('notificationPanel').classList.contains('open'); $('notificationPanel').classList.toggle('open', open); $('notificationBtn').classList.toggle('active', open); };
-$('markNotificationsRead').onclick = e => { e.stopPropagation(); notifications = notifications.map(n => ({ ...n, read: true })); saveNotifications(); renderNotifications(); };
+$('clearMyTicketFilters').onclick = () => {
+    myAreaFilter = 'all';
+    myStatusFilter = 'all';
+    myDateFrom = '';
+    myDateTo = '';
+    $('myAreaFilter').value = 'all';
+    $('myStatusFilter').value = 'all';
+    $('myDateFrom').value = '';
+    $('myDateTo').value = '';
+    renderRequester();
+};
+$('exportMyTickets').onclick = exportRequesterTickets;
+
+$('reportArea').onchange = e => { reportArea = e.target.value; renderReportSummary(); };
+$('reportOwner').onchange = e => { reportOwner = e.target.value; renderReportSummary(); };
+$('reportDateFrom').onchange = e => { reportDateFrom = e.target.value; renderReportSummary(); };
+$('reportDateTo').onchange = e => { reportDateTo = e.target.value; renderReportSummary(); };
+$('clearReportFilters').onclick = () => {
+    reportArea = reportOwner = 'all';
+    reportDateFrom = reportDateTo = '';
+    $('reportArea').value = 'all';
+    $('reportOwner').value = 'all';
+    $('reportDateFrom').value = '';
+    $('reportDateTo').value = '';
+    renderReportSummary();
+};
+$('exportClosedTickets').onclick = exportClosedTickets;
+$('exportOperators').onclick = exportOperatorReport;
+$('exportIncidents').onclick = exportIncidentTickets;
+
+$('notificationBtn').onclick = e => {
+    e.stopPropagation();
+    const open = !$('notificationPanel').classList.contains('open');
+    $('notificationPanel').classList.toggle('open', open);
+    $('notificationBtn').classList.toggle('active', open);
+};
+$('markNotificationsRead').onclick = e => {
+    e.stopPropagation();
+    notifications = notifications.map(n => ({ ...n, read: true }));
+    saveNotifications();
+    renderNotifications();
+};
 $('notificationPanel').onclick = e => e.stopPropagation();
-document.addEventListener('click', () => { $('notificationPanel').classList.remove('open'); $('notificationBtn').classList.remove('active'); });
+document.addEventListener('click', () => {
+    $('notificationPanel').classList.remove('open');
+    $('notificationBtn').classList.remove('active');
+});
 
 /* =========================================================
    Tema e inicialização da aplicação
@@ -264,7 +808,8 @@ document.addEventListener('click', () => { $('notificationPanel').classList.remo
 function setTheme(theme) { document.documentElement.dataset.theme = theme; localStorage.setItem('r2deskTheme', theme); }
 $$('.theme-toggle').forEach(btn => btn.onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') {
-    closeTicket();
+    if ($('discardTicketModal').classList.contains('open')) $('discardTicketModal').classList.remove('open');
+    else if ($('ticketModal').classList.contains('open')) closeTicket();
     $('logoutModal').classList.remove('open');
     $('notificationPanel').classList.remove('open');
     $('notificationBtn').classList.remove('active');
