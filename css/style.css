@@ -2318,6 +2318,318 @@ tbody tr:hover {
   padding:9px;
   font-size:9px
 }
+
+/* =========================================================
+   AC2 - melhorias de navegação, administração e relatórios
+   ========================================================= */
+.test-access-box {
+  margin-top:16px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--panel2);
+  display:grid;
+  gap:11px
+}
+.test-access-box b {
+  display:block;
+  font-size:10px;
+  color:var(--text)
+}
+.test-access-box span {
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.5
+}
+.test-access-actions {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px
+}
+.test-access-actions .btn {
+  padding:10px 8px;
+  font-size:9px
+}
+
+.my-ticket-tools {
+  grid-template-columns:1.05fr .85fr .8fr .8fr auto
+}
+.my-ticket-tool-actions {
+  display:flex;
+  gap:7px;
+  align-items:center
+}
+.my-ticket-tool-actions .btn {
+  white-space:nowrap
+}
+
+.file-item button.remove-file-btn {
+  border:1px solid color-mix(in srgb,var(--danger) 30%,var(--line));
+  background:color-mix(in srgb,var(--danger) 8%,var(--panel));
+  color:var(--danger);
+  border-radius:8px;
+  padding:6px 9px;
+  font-size:8px;
+  font-weight:900
+}
+.file-item button.remove-file-btn:hover {
+  background:color-mix(in srgb,var(--danger) 14%,var(--panel))
+}
+
+.admin-ops-strip {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:14px
+}
+.admin-ops-item {
+  padding:15px 17px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:linear-gradient(145deg,var(--panel),var(--surface-strong));
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:3px 12px
+}
+.admin-ops-item span {
+  font-size:9px;
+  color:var(--muted)
+}
+.admin-ops-item strong {
+  grid-row:1/3;
+  grid-column:2;
+  font-size:23px;
+  color:var(--brand)
+}
+.admin-ops-item small {
+  font-size:8px;
+  color:var(--muted)
+}
+.operator-overview-panel {
+  margin-top:16px
+}
+.operator-overview {
+  display:grid;
+  gap:8px
+}
+.operator-row {
+  display:grid;
+  grid-template-columns:36px minmax(160px,1fr) 105px 105px;
+  gap:10px;
+  align-items:center;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface-strong)
+}
+.operator-avatar {
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  background:var(--brand-soft);
+  color:var(--brand);
+  font-size:9px;
+  font-weight:900
+}
+.operator-info b {
+  display:block;
+  font-size:10px
+}
+.operator-info span,
+.operator-mini span {
+  display:block;
+  margin-top:3px;
+  font-size:8px;
+  color:var(--muted)
+}
+.operator-mini {
+  text-align:right
+}
+.operator-mini strong {
+  display:block;
+  font-size:13px
+}
+
+.report-filter-card {
+  margin:16px 0;
+  padding:16px
+}
+.report-filter-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px
+}
+.report-filter-head b {
+  display:block;
+  font-size:11px
+}
+.report-filter-head span {
+  display:block;
+  margin-top:3px;
+  font-size:8px;
+  color:var(--muted)
+}
+.report-filter-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr .8fr .8fr;
+  gap:10px
+}
+.report-filter-grid .field {
+  margin:0
+}
+.report-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px
+}
+.report-card {
+  padding:17px;
+  display:grid;
+  grid-template-columns:42px 1fr;
+  gap:12px;
+  align-items:start
+}
+.report-card-icon {
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:var(--brand-soft);
+  color:var(--brand);
+  font-size:11px;
+  font-weight:900
+}
+.report-card-copy span {
+  font-size:8px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em
+}
+.report-card-copy h3 {
+  margin:5px 0 6px;
+  font-size:13px
+}
+.report-card-copy p {
+  margin:0;
+  min-height:52px;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.55
+}
+.report-card-copy strong {
+  display:block;
+  margin-top:10px;
+  font-size:9px;
+  color:var(--text)
+}
+.report-card > .btn {
+  grid-column:1/-1;
+  width:100%;
+  margin-top:2px
+}
+
+.ticket-main-column {
+  display:grid;
+  gap:14px;
+  align-content:start
+}
+.ticket-description-card {
+  padding:18px
+}
+.ticket-description-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:12px
+}
+.ticket-description-head span:first-child {
+  display:block;
+  color:var(--muted);
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.08em
+}
+.ticket-description-head h3 {
+  margin:4px 0 0;
+  font-size:13px
+}
+.ticket-description-card p {
+  margin:0;
+  padding:13px 14px;
+  border-radius:12px;
+  background:var(--surface-strong);
+  border:1px solid var(--line);
+  font-size:10px;
+  line-height:1.7;
+  white-space:pre-wrap
+}
+.ticket-type-pill,
+.operator-label {
+  display:inline-flex;
+  align-items:center;
+  padding:5px 8px;
+  border-radius:999px;
+  background:var(--brand-soft);
+  color:var(--brand);
+  font-size:8px;
+  font-weight:900
+}
+.ticket-head-badges {
+  display:flex;
+  gap:7px;
+  align-items:center;
+  flex-wrap:wrap
+}
+.ticket-area-badge {
+  background:var(--panel2);
+  color:var(--text)
+}
+.requester-detail-note {
+  margin-bottom:14px;
+  padding:12px 14px;
+  font-size:9px;
+  line-height:1.5;
+  background:color-mix(in srgb,var(--brand) 6%,var(--panel))
+}
+.conversation-head > div h3 {
+  margin:0
+}
+.conversation-head > div small {
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:8px
+}
+.side-section-title {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+  margin-bottom:12px
+}
+.side-section-title span:first-child {
+  display:block;
+  font-size:8px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em
+}
+.side-section-title h3 {
+  margin:4px 0 0
+}
+.admin-service-card {
+  border-color:color-mix(in srgb,var(--brand) 22%,var(--line))
+}
+
 .toast {
   position:fixed;
   right:24px;
@@ -2467,4 +2779,26 @@ tbody tr:hover {
   .theme-icon {
     width:27px
   }
+}
+
+
+@media(max-width:1100px) {
+  .report-grid {grid-template-columns:1fr}
+  .report-filter-grid {grid-template-columns:repeat(2,1fr)}
+  .operator-row {grid-template-columns:36px 1fr 95px 95px}
+}
+@media(max-width:900px) {
+  .admin-ops-strip {grid-template-columns:1fr}
+  .my-ticket-tools {grid-template-columns:1fr 1fr}
+  .my-ticket-tool-actions {grid-column:1/-1}
+}
+@media(max-width:650px) {
+  .test-access-actions,
+  .report-filter-grid,
+  .my-ticket-tools {grid-template-columns:1fr}
+  .my-ticket-tool-actions {display:grid;grid-template-columns:1fr}
+  .operator-row {grid-template-columns:36px 1fr}
+  .operator-mini {text-align:left;grid-column:2}
+  .ticket-description-head,
+  .side-section-title {flex-direction:column}
 }
