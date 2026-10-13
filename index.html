@@ -111,25 +111,26 @@
        <label>
         E-mail
        </label>
-       <input autocomplete="username" id="loginEmail" required="" type="email" value="solicitante@r2desk.com"/>
+       <input autocomplete="username" id="loginEmail" placeholder="seu.usuario@empresa.com" required="" type="email"/>
       </div>
       <div class="field">
        <label>
         Senha
        </label>
-       <input autocomplete="current-password" id="loginPassword" required="" type="password" value="123456"/>
+       <input autocomplete="current-password" id="loginPassword" placeholder="Digite sua senha" required="" type="password"/>
       </div>
       <button class="btn btn-primary btn-block" type="submit">
        Entrar no R2Desk
       </button>
-      <div class="demo-box" id="demoBox">
-       <b>
-        Conta de demonstração — Solicitante
-       </b>
-       <br/>
-       solicitante@r2desk.com
-       <br/>
-       Senha: 123456
+      <div class="test-access-box">
+       <div>
+        <b>Acessos de avaliação</b>
+        <span>Use um perfil de teste sem expor credenciais na tela de login.</span>
+       </div>
+       <div class="test-access-actions">
+        <button class="btn btn-secondary" id="testRequester" type="button">Testar como Solicitante</button>
+        <button class="btn btn-secondary" id="testAdmin" type="button">Testar como Administrador</button>
+       </div>
       </div>
      </form>
     </div>
@@ -332,9 +333,6 @@
         </p>
         <div class="hero-search">
          <input id="serviceSearch" placeholder="Busque por VPN, Salesforce, notebook, Power BI..."/>
-         <button class="btn btn-primary" id="heroOpenTicket">
-          Abrir chamado
-         </button>
         </div>
         <div class="hero-actions">
          <button class="btn btn-secondary" data-page-target="myTickets">
@@ -485,36 +483,29 @@
          Acompanhe status, SLA, área responsável e as últimas interações.
         </p>
        </div>
-       <button class="btn btn-primary" data-new-ticket="">
-        + Abrir chamado
-       </button>
+
       </div>
       <div class="my-ticket-tools card">
        <div class="field">
-        <label>
-         Área de atendimento
-        </label>
-        <select id="myAreaFilter">
-         <option value="all">
-          Todas as áreas
-         </option>
+        <label>Área de atendimento</label>
+        <select id="myAreaFilter"><option value="all">Todas as áreas</option></select>
+       </div>
+       <div class="field">
+        <label>Status</label>
+        <select id="myStatusFilter">
+         <option value="all">Todos os status</option>
+         <option value="Aberto">Aberto</option>
+         <option value="Em atendimento">Em atendimento</option>
+         <option value="Aguardando usuário">Aguardando usuário</option>
+         <option value="Resolvido">Resolvido</option>
         </select>
        </div>
-       <div class="field">
-        <label>
-         Data inicial
-        </label>
-        <input id="myDateFrom" type="date"/>
+       <div class="field"><label>Data inicial</label><input id="myDateFrom" type="date"/></div>
+       <div class="field"><label>Data final</label><input id="myDateTo" type="date"/></div>
+       <div class="my-ticket-tool-actions">
+        <button class="btn btn-secondary" id="clearMyTicketFilters" type="button">Limpar filtros</button>
+        <button class="btn btn-primary" id="exportMyTickets" type="button">Exportar CSV</button>
        </div>
-       <div class="field">
-        <label>
-         Data final
-        </label>
-        <input id="myDateTo" type="date"/>
-       </div>
-       <button class="btn btn-secondary" id="clearMyTicketFilters" type="button">
-        Limpar filtros
-       </button>
       </div>
       <div class="filter-result" id="myTicketFilterResult">
       </div>
@@ -678,6 +669,11 @@
         </small>
        </div>
       </div>
+      <div class="admin-ops-strip">
+       <div class="admin-ops-item"><span>Incidentes ativos</span><strong id="mIncidents">0</strong><small>falhas em acompanhamento</small></div>
+       <div class="admin-ops-item"><span>Sem responsável</span><strong id="mUnassigned">0</strong><small>aguardando atribuição</small></div>
+       <div class="admin-ops-item"><span>Operadores ativos</span><strong id="mOperators">0</strong><small>com chamados atribuídos</small></div>
+      </div>
       <div class="admin-grid">
        <div class="card panel">
         <div class="panel-head">
@@ -726,6 +722,13 @@
         <div class="area-health" id="areaHealth">
         </div>
        </div>
+      </div>
+      <div class="card panel operator-overview-panel">
+       <div class="panel-head">
+        <div><h3>Atendimentos por operador</h3><span class="muted" style="font-size:9px">Distribuição atual da fila administrativa</span></div>
+        <button class="btn btn-ghost" data-page-target="reports">Ver relatórios</button>
+       </div>
+       <div class="operator-overview" id="operatorOverview"></div>
       </div>
      </section>
      <section class="page" id="queue">
@@ -815,67 +818,41 @@
      <section class="page" id="reports">
       <div class="page-head">
        <div>
-        <h1>
-         Relatórios
-        </h1>
-        <p>
-         Resumo para acompanhamento da operação e apresentação acadêmica.
-        </p>
+        <h1>Relatórios & exportações</h1>
+        <p>Consulte indicadores operacionais e exporte informações conforme o perfil administrativo.</p>
        </div>
       </div>
       <div class="metrics">
-       <div class="metric card">
-        <div class="metric-top">
-         <span>
-          Total registrado
-         </span>
-        </div>
-        <div class="num" id="rTotal">
-         0
-        </div>
-        <small>
-         base atual do protótipo
-        </small>
+       <div class="metric card"><div class="metric-top"><span>Total registrado</span></div><div class="num" id="rTotal">0</div><small>base atual do protótipo</small></div>
+       <div class="metric card"><div class="metric-top"><span>Em atendimento</span></div><div class="num" id="rProgress">0</div><small>trabalho em andamento</small></div>
+       <div class="metric card"><div class="metric-top"><span>Resolvidos</span></div><div class="num" id="rSolved">0</div><small>chamados finalizados</small></div>
+       <div class="metric card"><div class="metric-top"><span>Incidentes</span></div><div class="num" id="rIncidents">0</div><small>incidentes registrados</small></div>
+      </div>
+      <div class="report-filter-card card">
+       <div class="report-filter-head"><div><b>Filtros do relatório</b><span>Os filtros são aplicados aos arquivos exportados.</span></div><button class="btn btn-ghost" id="clearReportFilters" type="button">Limpar filtros</button></div>
+       <div class="report-filter-grid">
+        <div class="field"><label>Área</label><select id="reportArea"><option value="all">Todas as áreas</option></select></div>
+        <div class="field"><label>Operador</label><select id="reportOwner"><option value="all">Todos os operadores</option></select></div>
+        <div class="field"><label>Data inicial</label><input id="reportDateFrom" type="date"/></div>
+        <div class="field"><label>Data final</label><input id="reportDateTo" type="date"/></div>
        </div>
-       <div class="metric card">
-        <div class="metric-top">
-         <span>
-          Em atendimento
-         </span>
-        </div>
-        <div class="num" id="rProgress">
-         0
-        </div>
-        <small>
-         trabalho em andamento
-        </small>
-       </div>
-       <div class="metric card">
-        <div class="metric-top">
-         <span>
-          Resolvidos
-         </span>
-        </div>
-        <div class="num" id="rSolved">
-         0
-        </div>
-        <small>
-         chamados finalizados
-        </small>
-       </div>
-       <div class="metric card">
-        <div class="metric-top">
-         <span>
-          Alta/Crítica
-         </span>
-        </div>
-        <div class="num" id="rHigh">
-         0
-        </div>
-        <small>
-         itens prioritários
-        </small>
-       </div>
+      </div>
+      <div class="report-grid">
+       <article class="report-card card">
+        <div class="report-card-icon">✓</div>
+        <div class="report-card-copy"><span>Relatório operacional</span><h3>Chamados encerrados</h3><p>Lista de chamados resolvidos com solicitante, área, serviço, responsável, prioridade e data.</p><strong id="closedReportCount">0 registro(s)</strong></div>
+        <button class="btn btn-primary" id="exportClosedTickets" type="button">Exportar CSV</button>
+       </article>
+       <article class="report-card card">
+        <div class="report-card-icon">OP</div>
+        <div class="report-card-copy"><span>Produtividade</span><h3>Atendimentos por operador</h3><p>Resumo por atendente com total atribuído, em atendimento, aguardando usuário e resolvidos.</p><strong id="operatorReportCount">0 operador(es)</strong></div>
+        <button class="btn btn-primary" id="exportOperators" type="button">Exportar CSV</button>
+       </article>
+       <article class="report-card card">
+        <div class="report-card-icon">!</div>
+        <div class="report-card-copy"><span>Incidentes</span><h3>Incidentes registrados</h3><p>Relação dos incidentes com criticidade, status, área responsável, SLA e operador.</p><strong id="incidentReportCount">0 registro(s)</strong></div>
+        <button class="btn btn-primary" id="exportIncidents" type="button">Exportar CSV</button>
+       </article>
       </div>
      </section>
     </div>
@@ -1093,6 +1070,17 @@
       </div>
      </div>
     </form>
+   </div>
+  </div>
+  <div class="modal" id="discardTicketModal">
+   <div class="confirm-box">
+    <div class="confirm-icon">!</div>
+    <h3>Descartar abertura do chamado?</h3>
+    <p>As informações preenchidas ou pré-selecionadas nesta abertura serão descartadas.</p>
+    <div class="confirm-actions">
+     <button class="btn btn-secondary" id="keepTicketDraft" type="button">Continuar preenchendo</button>
+     <button class="btn btn-primary" id="confirmDiscardTicket" type="button">Sim, descartar</button>
+    </div>
    </div>
   </div>
   <div class="modal" id="logoutModal">
