@@ -52,7 +52,7 @@ A primeira entrega do projeto tem como foco o desenvolvimento da **interface e d
 * Sistemas Corporativos
 * BI
 
-### Vídeo de apresentação da AC1
+### Vídeo de apresentação da AC2 (atualizado)
 
 > [Assistir à apresentação da AC2 no Google Drive](https://drive.google.com/file/d/1DrnRVoHgF0-6ztLxTkrdNgiMcIET2ZlP/view)
 
