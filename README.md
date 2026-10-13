@@ -146,6 +146,43 @@ O desenvolvimento e a evolução das entregas podem ser acompanhados através do
 * Armazenamento de anexos
 * Evolução das regras de SLA
 
+
+## AC2 — Evolução do Portal de Serviços
+
+A segunda entrega do R2Desk teve como foco melhorias de usabilidade, organização dos atendimentos e novos recursos de gestão.
+
+### Melhorias implementadas
+
+* [x] #8 — Ajustar a apresentação das credenciais e distribuir contas de teste
+* [x] #9 — Aprimorar a abertura de chamados e a navegação do solicitante
+* [x] #10 — Aprimorar a visão administrativa e a identificação dos atendentes
+* [x] #11 — Implementar exportação de relatórios de chamados
+
+### Principais alterações
+
+* Ajustes na tela de login e nos acessos de demonstração
+* Confirmação antes de abandonar formulários preenchidos
+* Melhorias na apresentação e remoção de anexos
+* Refinamento da página de detalhes dos chamados
+* Reorganização da visão administrativa
+* Identificação do operador responsável pelas respostas
+* Exportação de chamados e relatórios em CSV
+* Relatórios de chamados encerrados
+* Relatórios de atendimentos por operador
+* Relatórios de incidentes registrados
+
+### Vídeo de apresentação da AC2
+
+> [Assistir à apresentação da AC2 no Google Drive](https://drive.google.com/file/d/1DrnRVoHgF0-6ztLxTkrdNgiMcIET2ZlP/view?usp=sharing)
+
+## Evolução do Projeto
+
+* [x] AC1 — Front-end e fluxo inicial do Portal de Serviços
+* [x] AC2 — Melhorias de usabilidade, administração e relatórios
+* [ ] AC3 — Próxima evolução do sistema
+* [ ] Entrega Final — Integração completa, testes e refinamentos
+
+
 ## 👨‍💻 Autor
 
 **Kevin Roger Santos**
