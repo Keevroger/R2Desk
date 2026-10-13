@@ -54,7 +54,7 @@ A primeira entrega do projeto tem como foco o desenvolvimento da **interface e d
 
 ### Vídeo de apresentação da AC1
 
-> [Assistir à apresentação da AC1 no Google Drive](https://drive.google.com/file/d/1VKXviLLhv4ApCK_ba62hcm517veqNRYX/view?usp=sharing)
+> [Assistir à apresentação da AC2 no Google Drive](https://drive.google.com/file/d/1DrnRVoHgF0-6ztLxTkrdNgiMcIET2ZlP/view)
 
 ## Estrutura do Projeto
 
@@ -130,7 +130,7 @@ O desenvolvimento e a evolução das entregas podem ser acompanhados através do
 ## Evolução do Projeto
 
 * [x] AC1 — Front-end e fluxo do Portal de Serviços
-* [ ] AC2 — Evolução do sistema e novas funcionalidades
+* [x] AC2 — Evolução do sistema e novas funcionalidades
 * [ ] AC3 — Integração das camadas e persistência de dados
 * [ ] Entrega Final — Integração completa, testes e refinamentos
 
