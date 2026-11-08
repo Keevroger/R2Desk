@@ -2322,37 +2322,6 @@ tbody tr:hover {
 /* =========================================================
    AC2 - melhorias de navegação, administração e relatórios
    ========================================================= */
-.test-access-box {
-  margin-top:16px;
-  padding:14px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:var(--panel2);
-  display:grid;
-  gap:11px
-}
-.test-access-box b {
-  display:block;
-  font-size:10px;
-  color:var(--text)
-}
-.test-access-box span {
-  display:block;
-  margin-top:4px;
-  color:var(--muted);
-  font-size:9px;
-  line-height:1.5
-}
-.test-access-actions {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px
-}
-.test-access-actions .btn {
-  padding:10px 8px;
-  font-size:9px
-}
-
 .my-ticket-tools {
   grid-template-columns:1.05fr .85fr .8fr .8fr auto
 }
@@ -2633,17 +2602,19 @@ tbody tr:hover {
 .toast {
   position:fixed;
   right:24px;
-  bottom:24px;
+  bottom:104px;
+  max-width:min(320px,calc(100vw - 48px));
   background:var(--text);
   color:var(--panel);
   border-radius:12px;
   padding:12px 15px;
   font-size:10px;
+  line-height:1.5;
   box-shadow:var(--shadow);
   transform:translateY(80px);
   opacity:0;
   transition:.2s;
-  z-index:80
+  z-index:110
 }
 .toast.show {
   transform:translateY(0);
@@ -2802,3 +2773,32 @@ tbody tr:hover {
   .ticket-description-head,
   .side-section-title {flex-direction:column}
 }
+
+
+/* Assistente R2 - melhorias 07/11 */
+.r2-assistant{position:fixed;right:24px;bottom:24px;z-index:95;font-family:inherit}
+.r2-assistant-launcher{position:relative;width:62px;height:62px;border:0;border-radius:22px;background:linear-gradient(145deg,var(--brand),#2d64d8);box-shadow:0 16px 40px rgba(31,89,198,.32);cursor:pointer;display:grid;place-items:center;transition:.2s transform,.2s box-shadow}
+.r2-assistant-launcher:hover{transform:translateY(-2px);box-shadow:0 20px 46px rgba(31,89,198,.38)}
+.r2-assistant-pulse{position:absolute;right:5px;top:5px;width:10px;height:10px;border-radius:50%;background:#65e4a3;border:2px solid var(--panel)}
+.r2-assistant-nudge{position:absolute;right:0;bottom:78px;width:285px;max-width:calc(100vw - 44px);padding:11px 15px;border-radius:15px;background:var(--panel);border:1px solid var(--line);box-shadow:0 18px 45px rgba(17,29,54,.22);font-size:10.5px;line-height:1.4;color:var(--text);text-align:left;opacity:0;visibility:hidden;transform:translateY(10px);transition:.22s}
+.r2-assistant-nudge:after{content:"";position:absolute;right:22px;bottom:-8px;width:14px;height:14px;background:var(--panel);border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+.r2-assistant-nudge.show{opacity:1;visibility:visible;transform:none}
+.r2-bot-icon{position:relative;width:34px;height:38px;display:block}
+.r2-bot-dome{position:absolute;left:5px;top:0;width:24px;height:14px;border:3px solid #fff;border-bottom:0;border-radius:16px 16px 3px 3px;background:#dce8ff}
+.r2-bot-eye{position:absolute;left:15px;top:5px;width:6px;height:6px;border-radius:50%;background:#12213d;box-shadow:8px 2px 0 -1px #6ff0ff}
+.r2-bot-body{position:absolute;left:4px;top:13px;width:26px;height:20px;border:3px solid #fff;border-radius:4px 4px 9px 9px;background:linear-gradient(90deg,#eaf1ff 0 32%,#2f6edf 32% 45%,#eaf1ff 45% 64%,#2f6edf 64% 76%,#eaf1ff 76%)}
+.r2-bot-body:before,.r2-bot-body:after{content:"";position:absolute;bottom:-7px;width:7px;height:9px;border:2px solid #fff;border-radius:3px;background:#dce8ff}.r2-bot-body:before{left:-6px}.r2-bot-body:after{right:-6px}
+.r2-assistant-panel{position:absolute;right:0;bottom:74px;width:min(390px,calc(100vw - 28px));height:min(580px,calc(100vh - 130px));background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:0 26px 70px rgba(17,29,54,.28);display:flex;flex-direction:column;overflow:hidden;opacity:0;visibility:hidden;transform:translateY(12px) scale(.98);transform-origin:bottom right;transition:.2s}
+.r2-assistant.open .r2-assistant-panel{opacity:1;visibility:visible;transform:none}
+.r2-assistant-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;background:linear-gradient(135deg,rgba(62,110,225,.14),rgba(79,227,255,.08));border-bottom:1px solid var(--line)}
+.r2-assistant-identity{display:flex;gap:10px;align-items:center}.r2-assistant-identity b{display:block;font-size:15px;color:var(--text)}.r2-assistant-identity small{display:block;margin-top:3px;color:var(--muted);font-size:10px}.r2-assistant-head>button{border:0;background:transparent;color:var(--muted);font-size:24px;cursor:pointer;line-height:1}
+.r2-bot-mini{width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,var(--brand),#2f6edf);display:grid;place-items:center}.r2-bot-mini span{width:18px;height:17px;border:2px solid white;border-radius:9px 9px 4px 4px;position:relative;background:#dfe9ff}.r2-bot-mini span:after{content:"";position:absolute;width:4px;height:4px;border-radius:50%;background:#18325e;left:6px;top:4px}
+.r2-assistant-messages{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.r2-chat-msg{max-width:88%;padding:12px 13px;border-radius:16px;font-size:12px;line-height:1.6;border:1px solid var(--line);white-space:normal}.r2-chat-msg.bot{align-self:flex-start;background:var(--panel);border-top-left-radius:5px}.r2-chat-msg.user{align-self:flex-end;background:var(--brand);color:white;border-color:transparent;border-top-right-radius:5px}.r2-chat-msg b{font-size:12px}.r2-chat-msg .r2-ticket-mini{display:block;margin-top:8px;padding:9px 10px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text);cursor:pointer;text-align:left;width:100%;font-size:11px;line-height:1.5}.r2-chat-msg .r2-ticket-mini b{color:var(--brand);font-size:11px}
+.r2-assistant-quick{padding:10px;display:flex;gap:8px;overflow:auto;border-top:1px solid var(--line);background:var(--panel)}.r2-assistant-quick button{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:8px 11px;font-size:10px;cursor:pointer;white-space:nowrap}.r2-assistant-quick button:hover{border-color:var(--brand);color:var(--brand)}
+.r2-assistant-input{display:flex;gap:8px;padding:11px;border-top:1px solid var(--line);background:var(--panel)}.r2-assistant-input input{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:12px 13px;outline:none;font-size:11px}.r2-assistant-input input:focus{border-color:var(--brand)}.r2-assistant-input button{width:42px;border:0;border-radius:12px;background:var(--brand);color:white;cursor:pointer;font-size:14px}
+@media(max-width:720px){.r2-assistant{right:14px;bottom:14px}.r2-assistant-nudge{right:0;bottom:72px;width:270px;max-width:calc(100vw - 28px);font-size:10px}.r2-assistant-panel{right:0;bottom:70px;width:min(100vw - 20px,390px);height:min(520px,calc(100vh - 105px))}.toast{right:14px;bottom:96px;max-width:calc(100vw - 28px)}}
+
+/* Notificações - melhorias 07/11 */
+.notification-item{position:relative}.notification-item.unread:after{content:"";position:absolute;right:10px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--brand)}
+.notification-item .notification-audience{display:inline-flex;margin-top:4px;font-size:7px;padding:2px 5px;border-radius:999px;background:var(--surface);color:var(--muted)}
