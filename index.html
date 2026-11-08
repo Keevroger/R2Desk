@@ -122,16 +122,6 @@
       <button class="btn btn-primary btn-block" type="submit">
        Entrar no R2Desk
       </button>
-      <div class="test-access-box">
-       <div>
-        <b>Acessos de avaliação</b>
-        <span>Use um perfil de teste sem expor credenciais na tela de login.</span>
-       </div>
-       <div class="test-access-actions">
-        <button class="btn btn-secondary" id="testRequester" type="button">Testar como Solicitante</button>
-        <button class="btn btn-secondary" id="testAdmin" type="button">Testar como Administrador</button>
-       </div>
-      </div>
      </form>
     </div>
    </div>
@@ -325,8 +315,8 @@
         <div class="welcome-label">
          Portal do colaborador
         </div>
-        <h1>
-         Olá, Kevin. Como podemos ajudar hoje?
+        <h1 id="requesterWelcome">
+         Olá. Como podemos ajudar hoje?
         </h1>
         <p class="lead">
          Encontre o serviço que precisa ou abra um chamado. O R2Desk direciona sua solicitação para a equipe responsável e mantém você informado durante o atendimento.
@@ -1103,6 +1093,41 @@
      </button>
     </div>
    </div>
+  </div>
+
+  <!-- Assistente do solicitante -->
+  <div class="r2-assistant hidden" id="r2Assistant" aria-live="polite">
+   <button class="r2-assistant-launcher" id="r2AssistantLauncher" type="button" aria-label="Abrir assistente R2">
+    <span class="r2-bot-icon" aria-hidden="true">
+     <span class="r2-bot-dome"></span>
+     <span class="r2-bot-eye"></span>
+     <span class="r2-bot-body"></span>
+    </span>
+    <span class="r2-assistant-pulse"></span>
+   </button>
+   <div class="r2-assistant-nudge hidden" id="r2AssistantNudge" role="status" aria-live="polite">
+    Olá, sou o R2 Assistente, precisa de ajuda?
+   </div>
+   <section class="r2-assistant-panel" id="r2AssistantPanel" aria-label="Assistente R2">
+    <header class="r2-assistant-head">
+     <div class="r2-assistant-identity">
+      <span class="r2-bot-mini" aria-hidden="true"><span></span></span>
+      <div><b>R2 Assistente</b><small>Guia do Portal de Serviços</small></div>
+     </div>
+     <button id="r2AssistantClose" type="button" aria-label="Fechar assistente">×</button>
+    </header>
+    <div class="r2-assistant-messages" id="r2AssistantMessages"></div>
+    <div class="r2-assistant-quick" id="r2AssistantQuick">
+     <button type="button" data-r2-action="open-ticket">Abrir chamado</button>
+     <button type="button" data-r2-action="recent-tickets">Últimos 5 chamados</button>
+     <button type="button" data-r2-action="guide">Como usar o portal</button>
+     <button type="button" data-r2-action="knowledge">Base de conhecimento</button>
+    </div>
+    <form class="r2-assistant-input" id="r2AssistantForm">
+     <input id="r2AssistantInput" autocomplete="off" placeholder="Pergunte sobre chamados, SLA, VPN..."/>
+     <button type="submit" aria-label="Enviar pergunta">➤</button>
+    </form>
+   </section>
   </div>
   <div class="toast" id="toast">
    Ação concluída.
