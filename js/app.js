@@ -32,41 +32,119 @@ const ARTICLES = [
 ];
 
 /* =========================================================
+   Contas de teste do protótipo
+   Observação: enquanto a autenticação estiver no front-end, estas credenciais
+   continuam acessíveis no código-fonte. A migração para backend ficará para a
+   próxima evolução do projeto.
+   ========================================================= */
+const TEST_USERS = [
+    { name: 'Ana Souza', email: 'ana.souza@r2desk.com', password: 'Ana@123', role: 'requester' },
+    { name: 'Bruno Lima', email: 'bruno.lima@r2desk.com', password: 'Bruno@123', role: 'requester' },
+    { name: 'Carla Mendes', email: 'carla.mendes@r2desk.com', password: 'Carla@123', role: 'requester' },
+    { name: 'Diego Alves', email: 'diego.alves@r2desk.com', password: 'Diego@123', role: 'requester' },
+    { name: 'Fernanda Rocha', email: 'fernanda.rocha@r2desk.com', password: 'Fernanda@123', role: 'requester' },
+    { name: 'Kevin Santos', email: 'kevin.santos@r2desk.com', password: 'R2Kevin#2026', role: 'admin' },
+    { name: 'Administrador Impacta', email: 'admin.impacta@r2desk.com', password: 'Impacta#2026', role: 'admin' }
+];
+
+function findTestUser(email, password) {
+    return TEST_USERS.find(u => u.email === String(email || '').trim().toLowerCase() && u.password === password);
+}
+
+/* =========================================================
    Dados demonstrativos e estado local do protótipo
    ========================================================= */
 const seed = [
-    { id: 'INC-1084', subject: 'VPN desconecta após autenticação', requester: 'Marina Lopes', email: 'marina.lopes@empresa.com', area: 'Infraestrutura', service: 'VPN', type: 'Incidente', priority: 'Alta', urgency: 'Alta', status: 'Em atendimento', owner: 'Kevin Santos', group: 'Infraestrutura N2', sla: '2h 18m', created: '08/09/2026 14:18', description: 'A VPN conecta após MFA e encerra a sessão em poucos segundos.', attachments: [], messages: [{ author: 'Marina Lopes', role: 'requester', at: '08/09/2026 14:18', text: 'A VPN conecta após MFA e encerra a sessão em poucos segundos.' }, { author: 'Kevin Santos', role: 'admin', at: '08/09/2026 14:35', text: 'Olá, Marina. Estamos validando os logs de autenticação. Você consegue confirmar se o problema acontece em outra rede?' }] },
-    { id: 'INC-1083', subject: 'Usuário sem acesso ao Salesforce', requester: 'Kevin Santos', email: 'solicitante@r2desk.com', area: 'Sistemas Comerciais', service: 'Salesforce / CRM', type: 'Incidente', priority: 'Média', urgency: 'Normal', status: 'Aberto', owner: 'Não atribuído', group: 'Sistemas Comerciais', sla: '6h 40m', created: '08/09/2026 13:52', description: 'Ao entrar no Salesforce, a aplicação comercial não aparece no App Launcher.', attachments: [], messages: [{ author: 'Kevin Santos', role: 'requester', at: '08/09/2026 13:52', text: 'Ao entrar no Salesforce, a aplicação comercial não aparece no App Launcher.' }] },
-    { id: 'INC-1082', subject: 'Notebook não reconhece segundo monitor', requester: 'Paula Nunes', email: 'paula.nunes@empresa.com', area: 'Help Desk', service: 'Monitores e docks', type: 'Incidente', priority: 'Baixa', urgency: 'Normal', status: 'Aguardando usuário', owner: 'Lucas Rocha', group: 'Help Desk N1', sla: '15h 12m', created: '08/09/2026 11:33', description: 'Segundo monitor conectado pela dock USB-C não é reconhecido.', attachments: [], messages: [] },
-    { id: 'INC-1081', subject: 'Pedido não aparece integrado no CRM', requester: 'Kevin Santos', email: 'solicitante@r2desk.com', area: 'Sistemas Comerciais', service: 'Integrações comerciais', type: 'Incidente', priority: 'Alta', urgency: 'Alta', status: 'Em atendimento', owner: 'Kevin Santos', group: 'Sistemas Comerciais', sla: '1h 08m', created: '08/09/2026 10:41', description: 'Pedido confirmado no ERP não aparece no CRM depois da integração.', attachments: [], messages: [{ author: 'Kevin Santos', role: 'requester', at: '08/09/2026 10:41', text: 'Pedido confirmado no ERP não aparece no CRM depois da integração.' }, { author: 'Kevin Santos - TI', role: 'admin', at: '08/09/2026 11:05', text: 'Recebido. Estamos conferindo o retorno da integração e o processamento no CRM.' }] },
-    { id: 'INC-1080', subject: 'Outlook solicitando senha repetidamente', requester: 'Renata Dias', email: 'renata.dias@empresa.com', area: 'Sistemas Corporativos', service: 'Microsoft 365', type: 'Incidente', priority: 'Média', urgency: 'Normal', status: 'Resolvido', owner: 'Ana Costa', group: 'Sistemas Corporativos', sla: 'Concluído', created: '08/09/2026 09:18', description: 'Outlook abre a janela de credenciais repetidamente.', attachments: [], messages: [] },
-    { id: 'INC-1079', subject: 'Dashboard comercial não atualizou', requester: 'Kevin Santos', email: 'solicitante@r2desk.com', area: 'BI', service: 'Power BI', type: 'Incidente', priority: 'Média', urgency: 'Normal', status: 'Resolvido', owner: 'Carla Mendes', group: 'BI', sla: 'Concluído', created: '07/09/2026 16:05', description: 'Dados do dashboard comercial estão com a atualização do dia anterior.', attachments: [], messages: [] },
-    { id: 'INC-1078', subject: 'Conta bloqueada no Windows', requester: 'João Vieira', email: 'joao.vieira@empresa.com', area: 'Service Desk', service: 'Senha e desbloqueio', type: 'Solicitação', priority: 'Baixa', urgency: 'Normal', status: 'Resolvido', owner: 'Ana Costa', group: 'Service Desk N1', sla: 'Concluído', created: '07/09/2026 15:12', description: 'Conta bloqueada após tentativas de senha incorreta.', attachments: [], messages: [] },
-    { id: 'INC-1077', subject: 'ERP indisponível para o financeiro', requester: 'Roberta Lima', email: 'roberta.lima@empresa.com', area: 'Sistemas Corporativos', service: 'ERP corporativo', type: 'Incidente', priority: 'Crítica', urgency: 'Imediata', status: 'Em atendimento', owner: 'Marcelo Alves', group: 'Sistemas Corporativos', sla: '22m', created: '08/09/2026 15:07', description: 'Equipe financeira não consegue acessar o ERP.', attachments: [], messages: [] }
+    { id: 'INC-1084', subject: 'VPN desconecta após autenticação', requester: 'Ana Souza', email: 'ana.souza@r2desk.com', area: 'Infraestrutura', service: 'VPN', type: 'Incidente', priority: 'Alta', urgency: 'Alta', status: 'Em atendimento', owner: 'Kevin Santos', group: 'Infraestrutura N2', sla: '2h 18m', created: '08/09/2026 14:18', description: 'A VPN conecta após MFA e encerra a sessão em poucos segundos.', attachments: [], messages: [{ author: 'Marina Lopes', role: 'requester', at: '08/09/2026 14:18', text: 'A VPN conecta após MFA e encerra a sessão em poucos segundos.' }, { author: 'Kevin Santos', role: 'admin', at: '08/09/2026 14:35', text: 'Olá, Marina. Estamos validando os logs de autenticação. Você consegue confirmar se o problema acontece em outra rede?' }] },
+    { id: 'INC-1083', subject: 'Usuário sem acesso ao Salesforce', requester: 'Bruno Lima', email: 'bruno.lima@r2desk.com', area: 'Sistemas Comerciais', service: 'Salesforce / CRM', type: 'Incidente', priority: 'Média', urgency: 'Normal', status: 'Aberto', owner: 'Não atribuído', group: 'Sistemas Comerciais', sla: '6h 40m', created: '08/09/2026 13:52', description: 'Ao entrar no Salesforce, a aplicação comercial não aparece no App Launcher.', attachments: [], messages: [{ author: 'Kevin Santos', role: 'requester', at: '08/09/2026 13:52', text: 'Ao entrar no Salesforce, a aplicação comercial não aparece no App Launcher.' }] },
+    { id: 'INC-1082', subject: 'Notebook não reconhece segundo monitor', requester: 'Carla Mendes', email: 'carla.mendes@r2desk.com', area: 'Help Desk', service: 'Monitores e docks', type: 'Incidente', priority: 'Baixa', urgency: 'Normal', status: 'Aguardando usuário', owner: 'Lucas Rocha', group: 'Help Desk N1', sla: '15h 12m', created: '08/09/2026 11:33', description: 'Segundo monitor conectado pela dock USB-C não é reconhecido.', attachments: [], messages: [] },
+    { id: 'INC-1081', subject: 'Pedido não aparece integrado no CRM', requester: 'Bruno Lima', email: 'bruno.lima@r2desk.com', area: 'Sistemas Comerciais', service: 'Integrações comerciais', type: 'Incidente', priority: 'Alta', urgency: 'Alta', status: 'Em atendimento', owner: 'Kevin Santos', group: 'Sistemas Comerciais', sla: '1h 08m', created: '08/09/2026 10:41', description: 'Pedido confirmado no ERP não aparece no CRM depois da integração.', attachments: [], messages: [{ author: 'Kevin Santos', role: 'requester', at: '08/09/2026 10:41', text: 'Pedido confirmado no ERP não aparece no CRM depois da integração.' }, { author: 'Kevin Santos - TI', role: 'admin', at: '08/09/2026 11:05', text: 'Recebido. Estamos conferindo o retorno da integração e o processamento no CRM.' }] },
+    { id: 'INC-1080', subject: 'Outlook solicitando senha repetidamente', requester: 'Diego Alves', email: 'diego.alves@r2desk.com', area: 'Sistemas Corporativos', service: 'Microsoft 365', type: 'Incidente', priority: 'Média', urgency: 'Normal', status: 'Resolvido', owner: 'Ana Costa', group: 'Sistemas Corporativos', sla: 'Concluído', created: '08/09/2026 09:18', description: 'Outlook abre a janela de credenciais repetidamente.', attachments: [], messages: [] },
+    { id: 'INC-1079', subject: 'Dashboard comercial não atualizou', requester: 'Bruno Lima', email: 'bruno.lima@r2desk.com', area: 'BI', service: 'Power BI', type: 'Incidente', priority: 'Média', urgency: 'Normal', status: 'Resolvido', owner: 'Carla Mendes', group: 'BI', sla: 'Concluído', created: '07/09/2026 16:05', description: 'Dados do dashboard comercial estão com a atualização do dia anterior.', attachments: [], messages: [] },
+    { id: 'INC-1078', subject: 'Conta bloqueada no Windows', requester: 'Fernanda Rocha', email: 'fernanda.rocha@r2desk.com', area: 'Service Desk', service: 'Senha e desbloqueio', type: 'Solicitação', priority: 'Baixa', urgency: 'Normal', status: 'Resolvido', owner: 'Ana Costa', group: 'Service Desk N1', sla: 'Concluído', created: '07/09/2026 15:12', description: 'Conta bloqueada após tentativas de senha incorreta.', attachments: [], messages: [] },
+    { id: 'INC-1077', subject: 'ERP indisponível para o financeiro', requester: 'Ana Souza', email: 'ana.souza@r2desk.com', area: 'Sistemas Corporativos', service: 'ERP corporativo', type: 'Incidente', priority: 'Crítica', urgency: 'Imediata', status: 'Em atendimento', owner: 'Marcelo Alves', group: 'Sistemas Corporativos', sla: '22m', created: '08/09/2026 15:07', description: 'Equipe financeira não consegue acessar o ERP.', attachments: [], messages: [] }
 ];
 let tickets = JSON.parse(localStorage.getItem('r2deskTicketsV2') || 'null') || JSON.parse(localStorage.getItem('r2deskTicketsV1') || 'null') || seed;
 tickets = tickets.map(t => ({ ...t, attachments: Array.isArray(t.attachments) ? t.attachments : [], messages: Array.isArray(t.messages) && t.messages.length ? t.messages : [{ author: t.requester, role: 'requester', at: t.created, text: t.description }] }));
-const ADMIN_OPERATOR = 'Kevin Santos';
+
+// Migração simples para quem já testou versões anteriores no mesmo navegador.
+const LEGACY_REQUESTERS = {
+    'solicitante@r2desk.com': { name: 'Bruno Lima', email: 'bruno.lima@r2desk.com' },
+    'marina.lopes@empresa.com': { name: 'Ana Souza', email: 'ana.souza@r2desk.com' },
+    'paula.nunes@empresa.com': { name: 'Carla Mendes', email: 'carla.mendes@r2desk.com' },
+    'renata.dias@empresa.com': { name: 'Diego Alves', email: 'diego.alves@r2desk.com' },
+    'joao.vieira@empresa.com': { name: 'Fernanda Rocha', email: 'fernanda.rocha@r2desk.com' },
+    'roberta.lima@empresa.com': { name: 'Ana Souza', email: 'ana.souza@r2desk.com' }
+};
+tickets = tickets.map(t => {
+    const legacy = LEGACY_REQUESTERS[t.email];
+    return legacy ? { ...t, requester: legacy.name, email: legacy.email } : t;
+});
+localStorage.setItem('r2deskTicketsV2', JSON.stringify(tickets));
+let currentUser = null;
+function currentUserName() { return currentUser?.name || (role === 'admin' ? 'Administrador' : 'Solicitante'); }
+function currentUserEmail() { return currentUser?.email || ''; }
+function currentOperatorName() { return role === 'admin' ? currentUserName() : 'Kevin Santos'; }
 let role = 'requester', loginRole = 'requester', wizardStep = 1, selectedIssue = 'Incidente', selectedUrgency = 'Normal', selectedFiles = [], statusFilter = 'all', areaFilter = 'all', currentTicketId = null, knowledgeFilter = 'Todos', myAreaFilter = 'all', myStatusFilter = 'all', myDateFrom = '', myDateTo = '';
 let reportArea = 'all', reportOwner = 'all', reportDateFrom = '', reportDateTo = '';
 let ticketDraftDirty = false, ticketOpenedWithPrefill = false;
-let notifications = JSON.parse(localStorage.getItem('r2deskNotificationsV1') || 'null') || [
-    { id: 'portal-update-1209', type: 'portal', title: 'R2Desk atualizado', text: 'A Base de Conhecimento ganhou novos guias para primeiros acessos e melhorias de navegação.', at: '12/09/2026 17:00', read: false },
-    { id: 'resolved-inc1079', type: 'ticket', ticketId: 'INC-1079', title: 'Chamado resolvido', text: 'INC-1079 • Dashboard comercial não atualizou foi marcado como resolvido.', at: '07/09/2026 17:02', read: false }
+let notifications = JSON.parse(localStorage.getItem('r2deskNotificationsV2') || 'null') || JSON.parse(localStorage.getItem('r2deskNotificationsV1') || 'null') || [
+    { id: 'portal-update-1209', audience: 'requester', type: 'portal', title: 'R2Desk atualizado', text: 'A Base de Conhecimento ganhou novos guias para primeiros acessos e melhorias de navegação.', at: '12/09/2026 17:00', read: false },
+    { id: 'resolved-inc1079', audience: 'requester', type: 'ticket', ticketId: 'INC-1079', title: 'Chamado resolvido', text: 'INC-1079 • Dashboard comercial não atualizou foi marcado como resolvido.', at: '07/09/2026 17:02', read: false },
+    { id: 'admin-triage-1083', audience: 'admin', type: 'ticket', ticketId: 'INC-1083', title: 'Chamado aguardando triagem', text: 'INC-1083 • Usuário sem acesso ao Salesforce está sem responsável.', at: '08/09/2026 13:53', read: false }
 ];
+notifications = notifications.map(n => ({ ...n, audience: n.audience || 'requester' }));
 function save() { localStorage.setItem('r2deskTicketsV2', JSON.stringify(tickets)); }
-function saveNotifications() { localStorage.setItem('r2deskNotificationsV1', JSON.stringify(notifications)); }
+function saveNotifications() { localStorage.setItem('r2deskNotificationsV2', JSON.stringify(notifications)); }
 
-/* =========================================================
-   Notificações
-   ========================================================= */
-function addNotification(data) { const n = { id: data.id || ('n-' + Date.now() + '-' + Math.random().toString(16).slice(2)), type: data.type || 'portal', ticketId: data.ticketId || null, title: data.title || 'Atualização', text: data.text || '', at: data.at || new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }), read: false }; notifications.unshift(n); notifications = notifications.slice(0, 30); saveNotifications(); renderNotifications(); }
-function renderNotifications() { if (!$('notificationList'))
-    return; const unread = notifications.filter(n => !n.read).length; $('notificationBadge').textContent = unread; $('notificationBadge').classList.toggle('hidden', unread === 0); $('notificationList').innerHTML = notifications.length ? notifications.map(n => `<button type="button" class="notification-item ${n.read ? '' : 'unread'}" data-notification="${n.id}"><span class="notification-dot">${n.type === 'ticket' ? '✓' : 'i'}</span><span class="notification-copy"><b>${esc(n.title)}</b><p>${esc(n.text)}</p><small>${esc(n.at)}</small></span></button>`).join('') : '<div class="notification-empty">Nenhuma notificação por enquanto.</div>'; $$('[data-notification]').forEach(b => b.onclick = () => { const n = notifications.find(x => x.id === b.dataset.notification); if (!n)
-    return; n.read = true; saveNotifications(); renderNotifications(); $('notificationPanel').classList.remove('open'); $('notificationBtn').classList.remove('active'); if (n.ticketId && tickets.some(t => t.id === n.ticketId))
-    openTicketDetail(n.ticketId);
-else
-    goPage('portal'); }); }
+// Notificações por perfil
+function visibleNotifications() {
+    return notifications.filter(n => {
+        if (!(n.audience === role || n.audience === 'all')) return false;
+        if (role === 'requester' && n.userEmail) return n.userEmail === currentUserEmail();
+        return true;
+    });
+}
+function addNotification(data) {
+    const n = {
+        id: data.id || ('n-' + Date.now() + '-' + Math.random().toString(16).slice(2)),
+        audience: data.audience || role,
+        type: data.type || 'portal',
+        ticketId: data.ticketId || null,
+        userEmail: data.userEmail || null,
+        title: data.title || 'Atualização',
+        text: data.text || '',
+        at: data.at || new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        read: false
+    };
+    notifications.unshift(n);
+    notifications = notifications.slice(0, 60);
+    saveNotifications();
+    renderNotifications();
+}
+function renderNotifications() {
+    if (!$('notificationList')) return;
+    const list = visibleNotifications();
+    const unread = list.filter(n => !n.read).length;
+    $('notificationBadge').textContent = unread > 99 ? '99+' : unread;
+    $('notificationBadge').classList.toggle('hidden', unread === 0);
+    $('notificationList').innerHTML = list.length ? list.map(n => `
+        <button type="button" class="notification-item ${n.read ? '' : 'unread'}" data-notification="${n.id}">
+            <span class="notification-dot">${n.type === 'ticket' ? '✓' : 'i'}</span>
+            <span class="notification-copy"><b>${esc(n.title)}</b><p>${esc(n.text)}</p><small>${esc(n.at)}</small></span>
+        </button>`).join('') : '<div class="notification-empty">Nenhuma notificação por enquanto.</div>';
+    $$('[data-notification]').forEach(b => b.onclick = () => {
+        const n = notifications.find(x => x.id === b.dataset.notification);
+        if (!n) return;
+        n.read = true;
+        saveNotifications();
+        renderNotifications();
+        $('notificationPanel').classList.remove('open');
+        $('notificationBtn').classList.remove('active');
+        if (n.ticketId && tickets.some(t => t.id === n.ticketId)) openTicketDetail(n.ticketId);
+        else goPage(role === 'admin' ? 'adminDashboard' : 'portal');
+    });
+}
 
 /* =========================================================
    Funções auxiliares, navegação e estilos de status
@@ -102,7 +180,7 @@ function renderAreas() { $('areaGrid').innerHTML = AREAS.map(a => `<article clas
    Chamados do solicitante e painel administrativo
    ========================================================= */
 function requesterTickets() {
-    return tickets.filter(t => t.email === 'solicitante@r2desk.com');
+    return tickets.filter(t => t.email === currentUserEmail());
 }
 
 function ticketCard(t) {
@@ -440,7 +518,7 @@ function openTicketDetail(id) {
             : '<b>Acompanhamento:</b> você pode responder abaixo sem abrir um novo chamado.';
 
     const adminActions = role === 'admin' ? `<div class="side-section card admin-service-card">
-        <div class="side-section-title"><div><span>Gestão do atendimento</span><h3>Triagem e responsabilidade</h3></div><span class="operator-label">Operador atual: ${esc(t.owner === 'Não atribuído' ? ADMIN_OPERATOR : t.owner)}</span></div>
+        <div class="side-section-title"><div><span>Gestão do atendimento</span><h3>Triagem e responsabilidade</h3></div><span class="operator-label">Operador atual: ${esc(t.owner === 'Não atribuído' ? currentOperatorName() : t.owner)}</span></div>
         <div class="admin-action-grid">
             <div class="field"><label>Status</label><select id="detailStatus"><option${t.status === 'Aberto' ? ' selected' : ''}>Aberto</option><option${t.status === 'Em atendimento' ? ' selected' : ''}>Em atendimento</option><option${t.status === 'Aguardando usuário' ? ' selected' : ''}>Aguardando usuário</option><option${t.status === 'Resolvido' ? ' selected' : ''}>Resolvido</option></select></div>
             <div class="field"><label>Responsável</label><select id="detailOwner"><option${t.owner === 'Não atribuído' ? ' selected' : ''}>Não atribuído</option><option${t.owner === 'Kevin Santos' ? ' selected' : ''}>Kevin Santos</option><option${t.owner === 'Ana Costa' ? ' selected' : ''}>Ana Costa</option><option${t.owner === 'Lucas Rocha' ? ' selected' : ''}>Lucas Rocha</option><option${t.owner === 'Carla Mendes' ? ' selected' : ''}>Carla Mendes</option><option${t.owner === 'Marcelo Alves' ? ' selected' : ''}>Marcelo Alves</option></select></div>
@@ -481,9 +559,9 @@ function openTicketDetail(id) {
         if (!text) return toast('Escreva uma mensagem antes de enviar.');
 
         t.messages = t.messages || [];
-        let author = 'Kevin Santos';
+        let author = currentUserName();
         if (role === 'admin') {
-            if (!t.owner || t.owner === 'Não atribuído') t.owner = ADMIN_OPERATOR;
+            if (!t.owner || t.owner === 'Não atribuído') t.owner = currentOperatorName();
             author = t.owner;
         }
         t.messages.push({
@@ -493,10 +571,13 @@ function openTicketDetail(id) {
             text
         });
 
-        if (role === 'admin' && t.email === 'solicitante@r2desk.com') {
-            addNotification({ type: 'ticket', ticketId: t.id, title: 'Nova atualização no chamado', text: `${t.id} • ${author} enviou uma nova mensagem.` });
+        if (role === 'admin') {
+            addNotification({ audience: 'requester', userEmail: t.email, type: 'ticket', ticketId: t.id, title: 'Nova atualização no chamado', text: `${t.id} • ${author} enviou uma nova mensagem.` });
         }
-        if (role === 'requester' && t.status === 'Aguardando usuário') t.status = 'Em atendimento';
+        if (role === 'requester') {
+            if (t.status === 'Aguardando usuário') t.status = 'Em atendimento';
+            addNotification({ audience: 'admin', type: 'ticket', ticketId: t.id, title: 'Nova resposta do solicitante', text: `${t.id} • ${t.requester} enviou uma nova mensagem.` });
+        }
 
         save();
         renderAll();
@@ -510,8 +591,8 @@ function openTicketDetail(id) {
             t.status = $('detailStatus').value;
             t.owner = $('detailOwner').value;
             if (t.status === 'Resolvido') t.sla = 'Concluído';
-            if (previousStatus !== 'Resolvido' && t.status === 'Resolvido' && t.email === 'solicitante@r2desk.com') {
-                addNotification({ type: 'ticket', ticketId: t.id, title: 'Seu chamado foi resolvido', text: `${t.id} • ${t.subject} foi marcado como resolvido.` });
+            if (previousStatus !== t.status) {
+                addNotification({ audience: 'requester', userEmail: t.email, type: 'ticket', ticketId: t.id, title: t.status === 'Resolvido' ? 'Seu chamado foi resolvido' : 'Status do chamado atualizado', text: `${t.id} • ${t.subject} agora está com status ${t.status}.` });
             }
             save();
             renderAll();
@@ -541,14 +622,6 @@ $$('.login-tab').forEach(tab => tab.onclick = () => {
     $('loginError').classList.remove('show');
 });
 
-function loginAsTest(testRole) {
-    loginRole = testRole;
-    $$('.login-tab').forEach(x => x.classList.toggle('active', x.dataset.loginRole === testRole));
-    role = testRole;
-    sessionStorage.setItem('r2deskRole', role);
-    enterApp();
-}
-
 /* =========================================================
    Login demonstrativo e sessão do protótipo
    ========================================================= */
@@ -556,9 +629,8 @@ $('loginForm').onsubmit = e => {
     e.preventDefault();
     const em = $('loginEmail').value.trim().toLowerCase();
     const pw = $('loginPassword').value;
-    const ok = loginRole === 'admin'
-        ? (em === 'admin@r2desk.com' && pw === 'admin123')
-        : (em === 'solicitante@r2desk.com' && pw === '123456');
+    const user = findTestUser(em, pw);
+    const ok = user && user.role === loginRole;
 
     if (!ok) {
         $('loginError').classList.add('show');
@@ -566,8 +638,10 @@ $('loginForm').onsubmit = e => {
     }
 
     $('loginError').classList.remove('show');
-    role = loginRole;
+    currentUser = user;
+    role = user.role;
     sessionStorage.setItem('r2deskRole', role);
+    sessionStorage.setItem('r2deskUserEmail', currentUser.email);
     enterApp();
 };
 
@@ -577,22 +651,32 @@ function enterApp() {
     const admin = role === 'admin';
     $('navRequester').classList.toggle('hidden', admin);
     $('navAdmin').classList.toggle('hidden', !admin);
-    $('notificationWrap').classList.toggle('hidden', admin);
-    $('sideName').textContent = admin ? ADMIN_OPERATOR : 'Kevin Santos';
+    $('notificationWrap').classList.remove('hidden');
+    if ($('r2Assistant')) $('r2Assistant').classList.toggle('hidden', admin);
+    $('sideName').textContent = currentUserName();
     $('sideRole').textContent = admin ? 'Administrador / Operador' : 'Solicitante';
-    $('sideAvatar').textContent = admin ? initials(ADMIN_OPERATOR) : 'KS';
+    $('sideAvatar').textContent = initials(currentUserName());
+    if ($('requesterWelcome')) {
+        const firstName = currentUserName().split(' ')[0];
+        $('requesterWelcome').textContent = `Olá, ${firstName}. Como podemos ajudar hoje?`;
+    }
     $('topNewTicket').textContent = admin ? '+ Registrar chamado' : '+ Novo chamado';
     renderAll();
+    renderNotifications();
+    resetR2Assistant();
+    initR2Assistant();
     bindPageTargets();
     goPage(admin ? 'adminDashboard' : 'portal');
 }
 
-$('testRequester').onclick = () => loginAsTest('requester');
-$('testAdmin').onclick = () => loginAsTest('admin');
 $('logoutBtn').onclick = () => $('logoutModal').classList.add('open');
 $('cancelLogout').onclick = () => $('logoutModal').classList.remove('open');
 $('confirmLogout').onclick = () => {
     sessionStorage.removeItem('r2deskRole');
+    sessionStorage.removeItem('r2deskUserEmail');
+    currentUser = null;
+    resetR2Assistant();
+    $('notificationWrap').classList.add('hidden');
     $('logoutModal').classList.remove('open');
     $('notificationPanel').classList.remove('open');
     $('app').classList.add('hidden');
@@ -713,24 +797,25 @@ function createTicketFromWizard() {
     const t = {
         id: `INC-${max}`,
         subject,
-        requester: role === 'admin' ? ADMIN_OPERATOR : 'Kevin Santos',
-        email: role === 'admin' ? 'admin@r2desk.com' : 'solicitante@r2desk.com',
+        requester: currentUserName(),
+        email: currentUserEmail(),
         area,
         service,
         type: selectedIssue,
         priority: p,
         urgency: selectedUrgency,
         status: 'Aberto',
-        owner: role === 'admin' ? ADMIN_OPERATOR : 'Não atribuído',
+        owner: role === 'admin' ? currentOperatorName() : 'Não atribuído',
         group: area,
         sla: calcSla(p),
         created,
         description,
         attachments: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type })),
-        messages: [{ author: role === 'admin' ? ADMIN_OPERATOR : 'Kevin Santos', role: role === 'admin' ? 'admin' : 'requester', at: created, text: description }]
+        messages: [{ author: currentUserName(), role: role === 'admin' ? 'admin' : 'requester', at: created, text: description }]
     };
 
     tickets.unshift(t);
+    if (role === 'requester') addNotification({ audience: 'admin', type: 'ticket', ticketId: t.id, title: 'Novo chamado recebido', text: `${t.id} • ${t.subject} foi aberto por ${t.requester}.` });
     save();
     closeTicket(true);
     renderAll();
@@ -784,15 +869,156 @@ $('exportClosedTickets').onclick = exportClosedTickets;
 $('exportOperators').onclick = exportOperatorReport;
 $('exportIncidents').onclick = exportIncidentTickets;
 
+
+// Assistente R2 do solicitante
+let r2AssistantInitialized = false;
+let r2AssistantNudgeInterval = null;
+let r2AssistantNudgeTimer = null;
+function hideR2Nudge() {
+    if (!$('r2AssistantNudge')) return;
+    $('r2AssistantNudge').classList.remove('show');
+}
+function showR2Nudge(text = 'Olá, sou o R2 Assistente, precisa de ajuda?') {
+    if (role !== 'requester' || !$('r2AssistantNudge') || !$('r2Assistant') || $('r2Assistant').classList.contains('hidden')) return;
+    if ($('r2Assistant').classList.contains('open')) return;
+    $('r2AssistantNudge').textContent = text;
+    $('r2AssistantNudge').classList.remove('hidden');
+    $('r2AssistantNudge').classList.add('show');
+    clearTimeout(r2AssistantNudgeTimer);
+    r2AssistantNudgeTimer = setTimeout(hideR2Nudge, 5000);
+}
+function startR2NudgeLoop() {
+    clearInterval(r2AssistantNudgeInterval);
+    clearTimeout(r2AssistantNudgeTimer);
+    if (role !== 'requester') return;
+    r2AssistantNudgeInterval = setInterval(() => showR2Nudge(), 25000);
+}
+function r2AddMessage(text, who = 'bot', html = false) {
+    if (!$('r2AssistantMessages')) return;
+    const item = document.createElement('div');
+    item.className = `r2-chat-msg ${who}`;
+    if (html) item.innerHTML = text; else item.textContent = text;
+    $('r2AssistantMessages').appendChild(item);
+    $('r2AssistantMessages').scrollTop = $('r2AssistantMessages').scrollHeight;
+    item.querySelectorAll('[data-r2-ticket]').forEach(b => b.onclick = () => {
+        $('r2Assistant').classList.remove('open');
+        openTicketDetail(b.dataset.r2Ticket);
+    });
+    item.querySelectorAll('[data-r2-open]').forEach(b => b.onclick = () => {
+        const data = b.dataset.r2Open.split('|');
+        $('r2Assistant').classList.remove('open');
+        openTicket(data[0] || 'Service Desk', data[1] || '', data[2] || '');
+    });
+}
+function r2RecentTickets() {
+    const list = requesterTickets().slice(0, 5);
+    if (!list.length) return r2AddMessage('Você ainda não possui chamados registrados. Posso ajudar a abrir o primeiro.');
+    const rows = list.map(t => `<button class="r2-ticket-mini" data-r2-ticket="${esc(t.id)}"><b>${esc(t.id)}</b><br>${esc(t.subject)}</button>`).join('');
+    r2AddMessage(`<b>Seus 5 chamados mais recentes:</b>${rows}`, 'bot', true);
+}
+function r2Guide() {
+    r2AddMessage('No portal você pode abrir um chamado pelo botão “Novo chamado”, acompanhar tudo em “Meus chamados”, consultar orientações na Base de conhecimento e usar o sino para atualizações. Se me disser o que está acontecendo, eu tento indicar a área correta.');
+}
+function r2TicketSuggestion(area, service, label, subject = '') {
+    r2AddMessage(`Pelo que você descreveu, eu começaria por <b>${esc(area)}</b> → ${esc(service)}.<br><button class="r2-ticket-mini" data-r2-open="${esc(area)}|${esc(subject)}|${esc(service)}">Abrir chamado nessa área</button>`, 'bot', true);
+}
+function r2Answer(raw) {
+    const q = String(raw || '').trim();
+    if (!q) return;
+    r2AddMessage(q, 'user');
+    const x = q.toLowerCase();
+    if (/últim|recent|meus chamados|meus tickets/.test(x)) return r2RecentTickets();
+    if (/abrir|novo chamado|criar chamado|solicita/.test(x)) return r2AddMessage('Posso te guiar. Diga em poucas palavras o problema (por exemplo: “VPN não conecta”, “Salesforce sem acesso” ou “notebook com defeito”). Se preferir, use o botão abaixo. <button class="r2-ticket-mini" data-r2-open="Service Desk||">Iniciar abertura de chamado</button>', 'bot', true);
+    if (/vpn/.test(x)) return r2TicketSuggestion('Infraestrutura', 'VPN', 'VPN', 'Problema de acesso à VPN');
+    if (/salesforce|crm/.test(x)) return r2TicketSuggestion('Sistemas Comerciais', 'Salesforce / CRM', 'Salesforce', 'Problema no Salesforce');
+    if (/power ?bi|dashboard|relat[oó]rio/.test(x)) return r2TicketSuggestion('BI', 'Power BI', 'Power BI', 'Problema em relatório / Power BI');
+    if (/notebook|monitor|dock|computador|desktop|mouse|teclado/.test(x)) return r2TicketSuggestion('Help Desk', 'Notebook / Desktop', 'Equipamento', 'Problema no equipamento');
+    if (/senha|bloquead|acesso|permiss/.test(x)) return r2TicketSuggestion('Service Desk', 'Senha e desbloqueio', 'Acesso', 'Problema de acesso / senha');
+    if (/outlook|microsoft|office|teams/.test(x)) return r2TicketSuggestion('Sistemas Corporativos', 'Microsoft 365', 'Microsoft 365', 'Problema no Microsoft 365');
+    if (/erp|protheus/.test(x)) return r2TicketSuggestion('Sistemas Corporativos', 'ERP corporativo', 'ERP', 'Problema no ERP');
+    if (/sla/.test(x)) return r2AddMessage('SLA é o prazo de atendimento acompanhado pelo R2Desk. Você pode consultar o SLA dentro dos detalhes de cada chamado. A prioridade e a urgência influenciam esse acompanhamento.');
+    if (/urg[eê]ncia|prioridade/.test(x)) return r2AddMessage('Na abertura, escolha a urgência de acordo com o impacto: Normal quando você consegue continuar trabalhando; Alta quando o trabalho está bastante impactado; Imediata quando a operação está parada ou várias pessoas foram afetadas.');
+    if (/anexo|arquivo|print|evid[eê]ncia/.test(x)) return r2AddMessage('Na etapa “Detalhes” do chamado você pode anexar imagens, vídeos ou PDF como evidência. Isso ajuda a TI a entender o problema mais rápido.');
+    if (/status|acompanhar|andamento/.test(x)) return r2AddMessage('Abra “Meus chamados”, clique no chamado desejado e acompanhe status, SLA, responsável, histórico e conversa com a TI. Você também pode responder pelo próprio chamado.');
+    if (/sino|notifica/.test(x)) return r2AddMessage('O sino mostra atualizações do seu perfil. No solicitante você recebe respostas e mudanças de status; no administrador aparecem novos chamados e respostas dos solicitantes. O contador indica quantas ainda não foram lidas.');
+    if (/base|conhecimento|artigo|guia/.test(x)) { r2AddMessage('A Base de conhecimento reúne orientações e procedimentos. Vou abrir essa área para você.'); setTimeout(() => { $('r2Assistant').classList.remove('open'); goPage('knowledge'); }, 350); return; }
+    if (/oi|ol[aá]|bom dia|boa tarde|boa noite/.test(x)) return r2AddMessage('Olá! Eu sou o R2 Assistente. Posso ajudar a abrir chamados, encontrar a área correta, mostrar seus últimos chamados ou explicar como usar o portal.');
+    if (/obrigad|valeu/.test(x)) return r2AddMessage('Por nada! Se precisar, continuo por aqui no canto do portal.');
+    r2AddMessage('Ainda não encontrei uma resposta exata para isso. Posso ajudar com abertura de chamados, áreas de atendimento, SLA, status, anexos, notificações e seus chamados recentes. Se você me disser qual sistema ou equipamento está com problema, tento indicar a área correta.');
+}
+function handleR2Action(action) {
+    if (action === 'open-ticket') { $('r2Assistant').classList.remove('open'); openTicket(); }
+    if (action === 'recent-tickets') r2RecentTickets();
+    if (action === 'guide') r2Guide();
+    if (action === 'knowledge') { $('r2Assistant').classList.remove('open'); goPage('knowledge'); }
+}
+function resetR2Assistant() {
+    clearInterval(r2AssistantNudgeInterval);
+    clearTimeout(r2AssistantNudgeTimer);
+    r2AssistantNudgeInterval = null;
+    r2AssistantNudgeTimer = null;
+    r2AssistantInitialized = false;
+    if ($('r2Assistant')) {
+        $('r2Assistant').classList.remove('open');
+        $('r2Assistant').classList.add('hidden');
+    }
+    if ($('r2AssistantMessages')) $('r2AssistantMessages').innerHTML = '';
+    if ($('r2AssistantInput')) $('r2AssistantInput').value = '';
+    hideR2Nudge();
+}
+
+function initR2Assistant() {
+    if (!$('r2Assistant')) return;
+    const isRequester = role === 'requester';
+    $('r2Assistant').classList.toggle('hidden', !isRequester);
+    if (!isRequester) {
+        hideR2Nudge();
+        clearInterval(r2AssistantNudgeInterval);
+        clearTimeout(r2AssistantNudgeTimer);
+        return;
+    }
+    startR2NudgeLoop();
+    if (r2AssistantInitialized) return;
+    r2AssistantInitialized = true;
+    r2AddMessage(`Olá, ${currentUserName().split(' ')[0]}! Eu sou o R2 Assistente. Posso guiar você pelo portal, ajudar a abrir um chamado e mostrar seus chamados recentes. O que você precisa?`);
+    $('r2AssistantLauncher').onclick = () => {
+        $('r2Assistant').classList.toggle('open');
+        hideR2Nudge();
+    };
+    $('r2AssistantClose').onclick = () => $('r2Assistant').classList.remove('open');
+    $('r2AssistantNudge').onclick = () => {
+        $('r2Assistant').classList.add('open');
+        hideR2Nudge();
+    };
+    $$('[data-r2-action]').forEach(b => b.onclick = () => handleR2Action(b.dataset.r2Action));
+    $('r2AssistantForm').onsubmit = e => {
+        e.preventDefault();
+        const value = $('r2AssistantInput').value.trim();
+        if (!value) return;
+        $('r2AssistantInput').value = '';
+        r2Answer(value);
+    };
+}
+
 $('notificationBtn').onclick = e => {
     e.stopPropagation();
     const open = !$('notificationPanel').classList.contains('open');
     $('notificationPanel').classList.toggle('open', open);
     $('notificationBtn').classList.toggle('active', open);
+
+    // Ao visualizar a caixa, as notificações pendentes do perfil atual
+    // passam a ser consideradas lidas e o contador é atualizado na hora.
+    if (open) {
+        notifications = notifications.map(n =>
+            (n.audience === role || n.audience === 'all') ? ({ ...n, read: true }) : n
+        );
+        saveNotifications();
+        renderNotifications();
+    }
 };
 $('markNotificationsRead').onclick = e => {
     e.stopPropagation();
-    notifications = notifications.map(n => ({ ...n, read: true }));
+    notifications = notifications.map(n => (n.audience === role || n.audience === 'all') ? ({ ...n, read: true }) : n);
     saveNotifications();
     renderNotifications();
 };
@@ -818,7 +1044,15 @@ renderAreas();
 renderKnowledge();
 bindPageTargets();
 const savedRole = sessionStorage.getItem('r2deskRole');
-if (savedRole) {
-    role = savedRole;
-    enterApp();
+const savedUserEmail = sessionStorage.getItem('r2deskUserEmail');
+if (savedRole && savedUserEmail) {
+    const savedUser = TEST_USERS.find(u => u.email === savedUserEmail && u.role === savedRole);
+    if (savedUser) {
+        currentUser = savedUser;
+        role = savedUser.role;
+        enterApp();
+    } else {
+        sessionStorage.removeItem('r2deskRole');
+        sessionStorage.removeItem('r2deskUserEmail');
+    }
 }
