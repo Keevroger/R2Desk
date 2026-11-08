@@ -183,6 +183,37 @@ A segunda entrega do R2Desk teve como foco melhorias de usabilidade, organizaç�
 * [ ] Entrega Final — Integração completa, testes e refinamentos
 
 
+## AC3 — Evolução do R2Desk
+
+Nesta terceira entrega, o foco foi aprimorar a experiência do usuário e a interação entre solicitantes e administradores.
+
+### Melhorias implementadas
+
+* [x] Implementação do R2 Assistente no módulo solicitante
+* [x] Auxílio na abertura de chamados
+* [x] Consulta dos 5 chamados mais recentes pelo assistente
+* [x] Guia de utilização do portal
+* [x] Melhoria do layout e mensagens do R2 Assistente
+* [x] Aprimoramento do sino de notificações
+* [x] Notificações separadas por perfil
+* [x] Marcação automática de notificações como lidas
+* [x] Criação de múltiplos usuários de teste
+* [x] Identificação dinâmica do usuário logado
+* [x] Correção do histórico do assistente ao trocar de usuário
+
+### Vídeo de apresentação da AC3
+
+[🎥 Assistir à apresentação da AC3 no Google Drive](https://drive.google.com/drive/u/0/folders/11L_IZJEOV2ELwclcZo56hDT4wHubiGDP)
+
+
+## Evolução do Projeto
+
+* [x] AC1 — Front-end e fluxo inicial do Portal de Serviços
+* [x] AC2 — Melhorias de usabilidade, administração e relatórios
+* [x] AC3 — Usuários, R2 Assistente e evolução das notificações
+* [ ] Entrega Final — Integração completa, testes e refinamentos
+
+
 ## 👨‍💻 Autor
 
 **Kevin Roger Santos**
